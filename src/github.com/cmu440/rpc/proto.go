@@ -29,3 +29,32 @@ type AcceptReply struct {
 type CommitArgs struct {
 	Committed struct{}
 }
+
+type GetServerArgs struct {
+	//nothing
+}
+
+type GetServerReply struct {
+	Nodes []Node
+}
+
+type GetMasterArgs struct {
+	//do nothing
+}
+
+type GetMasterReply struct {
+	Node Node
+}
+
+type ProposeArgs struct {
+	Proposal struct{}
+}
+
+type ProposeReply struct {
+	Status Status
+}
+
+type Node struct {
+	HostPort string
+	NodeID   int
+}
