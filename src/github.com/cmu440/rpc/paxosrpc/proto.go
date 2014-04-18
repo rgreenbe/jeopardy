@@ -9,18 +9,16 @@ const (
 )
 
 type PrepareArgs struct {
-	ProposerSequence int
+	Sequence *Sequence
 }
 
 type PrepareReply struct {
-	Status           Status
-	Uncommitted      struct{}
-	ProposerSequence int
+	Status   Status
+	Previous *ValueSequence
 }
 
 type AcceptArgs struct {
-	ProposerSequence int
-	Uncommitted      struct{}
+	Accept *ValueSequence
 }
 
 type AcceptReply struct {
@@ -28,11 +26,11 @@ type AcceptReply struct {
 }
 
 type CommitArgs struct {
-	Committed struct{}
+	Committed *ValueSequence
 }
 
 type GetServerArgs struct {
-	Node Node
+	Node *Node
 }
 
 type GetServerReply struct {
@@ -54,9 +52,4 @@ type ProposeArgs struct {
 
 type ProposeReply struct {
 	Status Status
-}
-
-type Node struct {
-	HostPort string
-	NodeID   uint32
 }

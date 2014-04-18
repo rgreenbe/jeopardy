@@ -1,15 +1,15 @@
 package paxosrpc
 
 type RemotePaxosServer interface {
-	Prepare(args *PrepareArgs, reply *PrepareReply) error
+	RecvPrepare(args *PrepareArgs, reply *PrepareReply) error
 
-	Accept(args *AcceptArgs, reply *AcceptReply) error
+	RecvAccept(args *AcceptArgs, reply *AcceptReply) error
 
-	Commit(args *CommitArgs) error
+	RecvCommit(args *CommitArgs) error
 
 	GetServers(args *GetServerArgs, reply *GetServerReply) error
 
-	AddNode(oldNode *Node, newNode *Node) error
+	ReplaceNode(oldNode *Node, newNode *Node) error
 
 	MasterServer(args *GetMasterArgs, reply *GetMasterReply) error
 
@@ -20,6 +20,21 @@ type PaxosServer struct {
 	// Embed all methods into the struct. See the Effective Go section about
 	// embedding for more details: golang.org/doc/effective_go.html#embedding
 	RemotePaxosServer
+}
+
+type ValueSequence struct {
+	Value    struct{}
+	Sequence *Sequence
+}
+
+type Node struct {
+	HostPort string
+	NodeID   uint32
+}
+
+type Sequence struct {
+	N      uint32
+	NodeID uint32
 }
 
 // Wrap wraps s in a type-safe wrapper struct to ensure that only the desired
