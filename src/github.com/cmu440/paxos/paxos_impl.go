@@ -2,7 +2,7 @@ package paxos
 
 import (
 	"errors"
-	"github.com/cmu440/rpc"
+	"github.com/cmu440/rpc/paxosrpc"
 	"net"
 	"net/rpc"
 )
@@ -25,14 +25,14 @@ func NewPaxos(master Node, numNodes int, hostPort string, nodeID uint32) (Paxos,
 	}
 	p := &paxos{}
 	for {
-		err = rpc.RegisterName("Paxos", rpc.Wrap(p))
+		err = rpc.RegisterName("Paxos", paxosrpc.Wrap(p))
 		if err == nil {
 			break
 		}
 		time.Sleep(time.Millisecond * 200)
 	}
 	if master != nil { //It's the master
-		var server *rpc.Client
+		var server *paxosrpc.Client
 		for {
 			server, err = rpc.DialHTTP("tcp", master.HostPort)
 			if err == nil {
@@ -40,11 +40,11 @@ func NewPaxos(master Node, numNodes int, hostPort string, nodeID uint32) (Paxos,
 			}
 			time.Sleep(time.Millisecond * 200)
 		}
-		reply := new(rpc.GetServerReply)
-		args := &rpc.GetServerArgs{rpc.Node{hostPort, nodeID}}
+		reply := new(paxosrpc.GetServerReply)
+		args := &paxosrpc.GetServerArgs{paxosrpc.Node{hostPort, nodeID}}
 		for {
 			server.Call("Paxos.GetServers", args, reply)
-			if reply.Status == rpc.OK {
+			if reply.Status == paxosrpc.OK {
 				p.nodes = reply.Servers
 				break
 			}
@@ -52,12 +52,12 @@ func NewPaxos(master Node, numNodes int, hostPort string, nodeID uint32) (Paxos,
 		}
 		p.master = server
 	} else {
-		p.nodes = make([]rpc.Node, 0, numNodes)
-		p.nodes = append(ss.nodes, rpc.Node{hostPort, nodeID})
+		p.nodes = make([]paxosrpc.Node, 0, numNodes)
+		p.nodes = append(p.nodes, paxosrpc.Node{hostPort, nodeID})
 		if numNodes == 1 {
-			p.ready = rpc.OK
+			p.ready = paxosrpc.OK
 		} else {
-			p.ready = rpc.NOT_READY
+			p.ready = paxosrpc.NOT_READY
 		}
 	}
 	rpc.HandleHTTP()
@@ -65,30 +65,30 @@ func NewPaxos(master Node, numNodes int, hostPort string, nodeID uint32) (Paxos,
 	return p, nil
 }
 
-func Prepare(args *rpc.PrepareArgs, reply *rpc.PrepareReply) error {
+func Prepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error {
 
 }
 
-func Accept(args *rpc.AcceptArgs, reply *rpc.AcceptReply) error {
+func Accept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error {
 
 }
 
-func Commit(args *rpc.CommitArgs) error {
+func Commit(args *paxosrpc.CommitArgs) error {
 
 }
 
-func GetServers(args *rpc.GetServerArgs, reply *rpc.GetServerReply) error {
+func GetServers(args *paxosrpc.GetServerArgs, reply *paxosrpc.GetServerReply) error {
 
 }
 
-func AddNode(oldNode *rpc.Node, newNode *rpc.Node) error {
+func AddNode(oldNode *paxosrpc.Node, newNode *paxosrpc.Node) error {
 
 }
 
-func MasterServer(args *rpc.GetMasterArgs, reply *rpc.GetMasterReply) error {
+func MasterServer(args *paxosrpc.GetMasterArgs, reply *paxosrpc.GetMasterReply) error {
 
 }
 
-func Propose(args *rpc.ProposeArgs, reply *rpc.ProposeReply) {
+func Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply) {
 
 }

@@ -1,4 +1,4 @@
-package rpc
+package paxosrpc
 
 type Status int
 
