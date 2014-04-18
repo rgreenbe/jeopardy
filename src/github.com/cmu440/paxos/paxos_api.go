@@ -10,4 +10,5 @@ type Paxos interface {
 	ActiveNodes(args *rpc.GetServerArgs, reply *rpc.GetServerReply) error
 	AddNode(oldNode *rpc.Node, newNode *rpc.Node) error
 	MasterServer(args *rpc.GetMasterArgs, reply *rpc.GetMasterReply) error
+	Propose(args *rpc.ProposeArgs, reply *rpc.ProposeReply)
 }
