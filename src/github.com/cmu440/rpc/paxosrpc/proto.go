@@ -36,7 +36,8 @@ type GetServerArgs struct {
 }
 
 type GetServerReply struct {
-	Nodes []Node
+	Nodes  []Node
+	Status Status
 }
 
 type GetMasterArgs struct {

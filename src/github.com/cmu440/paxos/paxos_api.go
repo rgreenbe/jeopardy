@@ -1,6 +1,8 @@
 package paxos
 
-import "github.com/cmu440/rpc/paxosrpc"
+import (
+	"github.com/cmu440/rpc/paxosrpc"
+)
 
 type Paxos interface {
 	Prepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error

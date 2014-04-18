@@ -1,19 +1,19 @@
 package paxosrpc
 
 type RemotePaxosServer interface {
-	Prepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error
+	Prepare(args *PrepareArgs, reply *PrepareReply) error
 
-	Accept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error
+	Accept(args *AcceptArgs, reply *AcceptReply) error
 
-	Commit(args *paxosrpc.CommitArgs) error
+	Commit(args *CommitArgs) error
 
-	GetServers(args *paxosrpc.GetServerArgs, reply *paxosrpc.GetServerReply) error
+	GetServers(args *GetServerArgs, reply *GetServerReply) error
 
-	AddNode(oldNode *paxosrpc.Node, newNode *paxosrpc.Node) error
+	AddNode(oldNode *Node, newNode *Node) error
 
-	MasterServer(args *paxosrpc.GetMasterArgs, reply *paxosrpc.GetMasterReply) error
+	MasterServer(args *GetMasterArgs, reply *GetMasterReply) error
 
-	Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply)
+	Propose(args *ProposeArgs, reply *ProposeReply)
 }
 
 type PaxosServer struct {
