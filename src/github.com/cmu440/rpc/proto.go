@@ -5,6 +5,7 @@ type Status int
 const (
 	OK Status = iota + 1
 	CANCEL
+	NOT_READY
 )
 
 type PrepareArgs struct {
@@ -31,7 +32,7 @@ type CommitArgs struct {
 }
 
 type GetServerArgs struct {
-	//nothing
+	Node Node
 }
 
 type GetServerReply struct {
@@ -56,5 +57,5 @@ type ProposeReply struct {
 
 type Node struct {
 	HostPort string
-	NodeID   int
+	NodeID   uint32
 }
