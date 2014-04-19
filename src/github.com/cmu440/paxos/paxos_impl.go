@@ -3,6 +3,7 @@ package paxos
 import (
 	"container/list"
 	"errors"
+	"fmt"
 	"github.com/cmu440/rpc/paxosrpc"
 	"math"
 	"net"
@@ -110,6 +111,7 @@ func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptRepl
 }
 
 func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs) error {
+	fmt.Println("Committed")
 	return nil
 }
 
