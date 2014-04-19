@@ -3,17 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/cmu440/paxos"
+	"github.com/cmu440/rpc/paxosrpc"
 	"log"
 	"net"
-	"net/http"
-	"net/rpc"
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
-
-	"github.com/cmu440/paxos"
-	"github.com/cmu440/rpc/paxosrpc"
 )
 
 type testFunc struct {
@@ -26,29 +22,19 @@ var (
 	testRegex = flag.String("t", "", "test to run")
 	passCount int
 	failCount int
-	pc        proxycounter.ProxyCounter
-	paxos     Paxos
+	master    paxos.Paxos
 )
 
 var LOGE = log.New(os.Stderr, "", log.Lshortfile|log.Lmicroseconds)
 
 func initNodeServer(masterServerHostPort string, NodePort int) error {
-	nodeServerHostPort := net.JoinHostPort("localhost", strconv.Itoa(NodePort))
-	proxyCounter, err := proxycounter.NewProxyCounter(masterServerHostPort, nodeServerHostPort)
-	if err != nil {
-		LOGE.Println("Failed to setup test:", err)
-		return err
-	}
-	pc = proxyCounter
-	rpc.RegisterName("NodeServer", paxosrpc.Wrap(pc))
-
 	// Create and start the TribServer.
 	numNodes := 3
-	paxos, err := paxos.NewPaxos("", numNodes, masterServerHostPort, 0)
-
+	var err error
+	master, err = paxos.NewPaxos("", numNodes, masterServerHostPort, 0)
 	for i := 1; i < numNodes; i++ {
 		nodeServerHostPort := net.JoinHostPort("localhost", strconv.Itoa(NodePort+i))
-		_, _ := paxos.NewPaxos(masterServerHostPort, numNodes, nodeServerHostPort, i)
+		_, _ = paxos.NewPaxos(masterServerHostPort, numNodes, nodeServerHostPort, uint32(i))
 	}
 
 	if err != nil {
@@ -58,11 +44,15 @@ func initNodeServer(masterServerHostPort string, NodePort int) error {
 	return nil
 }
 
+func testPaxosBasic1() {
+	fmt.Println("FUCK DA POLICE")
+	master.Propose(&paxosrpc.ProposeArgs{struct{}{}}, new(paxosrpc.ProposeReply))
+}
+
 func main() {
 	tests := []testFunc{
-	//{"testCreateUserValid", testPaxosBasic1}
+		{"testCreateUserValid", testPaxosBasic1},
 	}
-
 	flag.Parse()
 	if flag.NArg() < 1 {
 		LOGE.Fatal("Usage: tribtest <storage master host:port>")
