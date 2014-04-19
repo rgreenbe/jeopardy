@@ -5,7 +5,7 @@ type RemotePaxosServer interface {
 
 	RecvAccept(args *AcceptArgs, reply *AcceptReply) error
 
-	RecvCommit(args *CommitArgs) error
+	RecvCommit(args *CommitArgs, reply *CommitReply) error
 
 	GetServers(args *GetServerArgs, reply *GetServerReply) error
 
@@ -13,7 +13,7 @@ type RemotePaxosServer interface {
 
 	MasterServer(args *GetMasterArgs, reply *GetMasterReply) error
 
-	Propose(args *ProposeArgs, reply *ProposeReply)
+	Propose(args *ProposeArgs, reply *ProposeReply) error
 }
 
 type PaxosServer struct {
@@ -29,12 +29,12 @@ type ValueSequence struct {
 
 type Node struct {
 	HostPort string
-	NodeID   uint32
+	NodeID   uint64
 }
 
 type Sequence struct {
-	N      uint32
-	NodeID uint32
+	N      uint64
+	NodeID uint64
 }
 
 // Wrap wraps s in a type-safe wrapper struct to ensure that only the desired

@@ -9,7 +9,7 @@ type Paxos interface {
 
 	RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error
 
-	RecvCommit(args *paxosrpc.CommitArgs) error
+	RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitReply) error
 
 	GetServers(args *paxosrpc.GetServerArgs, reply *paxosrpc.GetServerReply) error
 
@@ -17,5 +17,5 @@ type Paxos interface {
 
 	MasterServer(args *paxosrpc.GetMasterArgs, reply *paxosrpc.GetMasterReply) error
 
-	Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply)
+	Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply) error
 }
