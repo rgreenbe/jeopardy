@@ -29,6 +29,10 @@ type CommitArgs struct {
 	Committed *ValueSequence
 }
 
+type CommitReply struct {
+	//do nothing
+}
+
 type GetServerArgs struct {
 	Node *Node
 }
