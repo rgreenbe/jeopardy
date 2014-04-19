@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cmu440/tribbler/paxos"
-	"github.com/cmu440/tribbler/rpc/paxosrpc"
+	"github.com/cmu440/paxos"
+	"github.com/cmu440/rpc/paxosrpc"
 )
 
 type testFunc struct {
@@ -27,16 +27,8 @@ var (
 	passCount int
 	failCount int
 	pc        proxycounter.ProxyCounter
-	ts        tribserver.TribServer
+	paxos     Paxos
 )
-
-var statusMap = map[tribrpc.Status]string{
-	tribrpc.OK:               "OK",
-	tribrpc.NoSuchUser:       "NoSuchUser",
-	tribrpc.NoSuchTargetUser: "NoSuchTargetUser",
-	tribrpc.Exists:           "Exists",
-	0:                        "Unknown",
-}
 
 var LOGE = log.New(os.Stderr, "", log.Lshortfile|log.Lmicroseconds)
 
@@ -52,11 +44,11 @@ func initNodeServer(masterServerHostPort string, NodePort int) error {
 
 	// Create and start the TribServer.
 	numNodes := 3
-	node, err := paxos.NewPaxos("", numNodes, masterServerHostPort, 0)
+	paxos, err := paxos.NewPaxos("", numNodes, masterServerHostPort, 0)
 
 	for i := 1; i < numNodes; i++ {
 		nodeServerHostPort := net.JoinHostPort("localhost", strconv.Itoa(NodePort+i))
-		paxos.NewPaxos(masterServerHostPort, numNodes, nodeServerHostPort, i)
+		_, _ := paxos.NewPaxos(masterServerHostPort, numNodes, nodeServerHostPort, i)
 	}
 
 	if err != nil {
@@ -68,7 +60,7 @@ func initNodeServer(masterServerHostPort string, NodePort int) error {
 
 func main() {
 	tests := []testFunc{
-		{"testCreateUserValid", testPaxosBasic1},
+	//{"testCreateUserValid", testPaxosBasic1}
 	}
 
 	flag.Parse()
