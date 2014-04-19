@@ -31,7 +31,7 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID uint3
 		}
 		time.Sleep(time.Millisecond * 200) //Retry in a second
 	}
-	p := &paxos{numNodes, nil, list.New(), make(chan struct{}), nil, nil, nil}
+	p := &paxos{numNodes, nil, make(chan struct{}, 1000), list.New(), make(chan struct{}), nil, nil, nil}
 	for {
 		err = rpc.RegisterName("Paxos", paxosrpc.Wrap(p))
 		if err == nil {
@@ -149,14 +149,18 @@ func (p *paxos) MasterServer(args *paxosrpc.GetMasterArgs, reply *paxosrpc.GetMa
 }
 
 func (p *paxos) Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply) {
-	//proposal := args.Proposal
-	//(*(reply)).Status = paxosrpc.OK
+	proposal := args.Proposal
+	(*(reply)).Status = paxosrpc.OK
+	p.proposalChan <- proposal
+	p.startPrepare <- struct{}{}
+	return
 }
 
 func (p *paxos) submitPrepare() {
 	for {
 		select {
 		case <-p.startPrepare:
+
 		}
 	}
 }
