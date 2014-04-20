@@ -5,11 +5,9 @@ package main
 import (
 	"flag"
 	"github.com/cmu440/paxos"
-	"github.com/cmu440/tests/paxostest"
 	"log"
 	"os"
 	"strconv"
-	"time"
 )
 
 const defaultMasterPort = 9009
@@ -35,15 +33,11 @@ func main() {
 		*port = defaultMasterPort
 	}
 	// Create and start the StorageServer.
-	master, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID)
+	_, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID)
 	if err != nil {
 		log.Fatalln("Failed to create storage server:", err)
 	}
-	log.Println("Started")
+	log.Println("Started", *nodeID)
 	// Run the storage server forever.
-	if *masterHostPort == "" {
-		time.Sleep(time.Second * 2)
-		paxostest.StartTests(master)
-	}
 	select {}
 }

@@ -3,8 +3,8 @@ package paxos
 import (
 	"container/list"
 	"errors"
-	"fmt"
 	"github.com/cmu440/rpc/paxosrpc"
+	"log"
 	"math"
 	"net"
 	"net/http"
@@ -71,21 +71,19 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 			time.Sleep(time.Second)
 		}
 		p.master = server
-		go p.handlePrepare()
-		go http.Serve(listener, nil)
 	} else {
 		p.nodes = make([]paxosrpc.Node, 0, numNodes)
 		p.nodes = append(p.nodes, paxosrpc.Node{hostPort, nodeID})
-		rpc.HandleHTTP()
-		go p.handlePrepare()
-		go http.Serve(listener, nil)
-		return p, nil
 	}
+	rpc.HandleHTTP()
+	go p.handlePrepare()
+	go http.Serve(listener, nil)
 	return p, nil
 }
 
 func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error {
-	if p.compare(p.highestSequence, (*args).Sequence) == LESS {
+	if p.highestSequence == nil || p.compare(p.highestSequence, (*args).Sequence) == LESS ||
+		p.compare(p.highestSequence, (*args).Sequence) == EQUAL {
 		(*reply).Status = paxosrpc.OK
 		(*reply).Previous = p.previous
 		p.highestSequence = args.Sequence
@@ -96,7 +94,8 @@ func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareR
 }
 
 func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error {
-	if p.compare(p.highestSequence, (*args).Accept.Sequence) == LESS {
+	if p.highestSequence == nil || p.compare(p.highestSequence, (*args).Accept.Sequence) == LESS ||
+		p.compare(p.highestSequence, (*args).Accept.Sequence) == EQUAL {
 		(*reply).Status = paxosrpc.OK
 		p.previous = (*args).Accept
 	} else {
@@ -106,7 +105,7 @@ func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptRepl
 }
 
 func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitReply) error {
-	fmt.Println("Committed")
+	log.Println("Committed")
 	return nil
 }
 
@@ -195,12 +194,13 @@ func (p *paxos) sendPrepare() {
 		p.connectToNodes()
 		p.madeConnections = true
 	}
-	args := &paxosrpc.PrepareArgs{&paxosrpc.Sequence{n, p.nodeID}}
+	sequence := &paxosrpc.Sequence{n, p.nodeID}
+	args := &paxosrpc.PrepareArgs{sequence}
 	replyChan := make(chan paxosrpc.PrepareReply, p.numNodes-1)
 	for _, connection := range p.connections {
 		go p.rpcPrepare(connection, args, replyChan)
 	}
-	oldestPrepare := new(paxosrpc.ValueSequence)
+	var oldestPrepare *paxosrpc.ValueSequence
 	ok := 1
 	cancel := 0
 	for i := 1; i < p.numNodes; i++ {
@@ -215,14 +215,18 @@ func (p *paxos) sendPrepare() {
 			}
 			ok++
 			if (p.numNodes / 2) < ok {
-
-				p.sendAccept(oldestPrepare)
+				if oldestPrepare == nil {
+					value := p.proposalList.Front().Value.(struct{})
+					p.sendAccept(&paxosrpc.ValueSequence{value, sequence})
+				} else {
+					p.sendAccept(oldestPrepare)
+				}
 				return
 			}
 		} else {
 			cancel++
 			if (p.numNodes / 2) < cancel {
-				p.startPrepare <- struct{}{} //So sorry..try again
+				//p.startPrepare <- struct{}{} //So sorry..try again
 				return
 			}
 		}
@@ -243,11 +247,12 @@ func (p *paxos) sendAccept(accept *paxosrpc.ValueSequence) {
 			ok++
 			if (p.numNodes / 2) < ok {
 				p.sendCommit(accept)
+				return
 			}
 		} else {
 			cancel++
 			if (p.numNodes / 2) < cancel {
-				p.startPrepare <- struct{}{} //So sorry..try again
+				//p.startPrepare <- struct{}{} //So sorry..try again
 				return
 			}
 		}
@@ -259,7 +264,7 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence) {
 	for _, connection := range p.connections {
 		go p.rpcCommit(connection, args)
 	}
-	p.startPrepare <- struct{}{}
+	//p.startPrepare <- struct{}{}
 }
 
 func (p *paxos) rpcCommit(server *rpc.Client, args *paxosrpc.CommitArgs) {
@@ -297,8 +302,10 @@ func (p *paxos) connectToNodes() {
 	for _, node := range p.nodes {
 		if node.NodeID != p.nodeID {
 			server, err := rpc.DialHTTP("tcp", node.HostPort)
-			if err != nil {
+			if err == nil {
 				p.connections = append(p.connections, server)
+			} else {
+				log.Println(err)
 			}
 		}
 	}

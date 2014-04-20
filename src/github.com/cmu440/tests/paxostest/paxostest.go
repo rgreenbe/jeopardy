@@ -1,10 +1,10 @@
-package paxostest
+package main
 
 import (
 	"flag"
-	"github.com/cmu440/paxos"
 	"github.com/cmu440/rpc/paxosrpc"
 	"log"
+	"net/rpc"
 	"os"
 	"regexp"
 	"time"
@@ -16,10 +16,11 @@ type testFunc struct {
 }
 
 var (
-	passCount int
-	failCount int
-	master    paxos.Paxos
-	testRegex = flag.String("t", "", "test to run")
+	passCount      int
+	failCount      int
+	master         *rpc.Client
+	testRegex      = flag.String("t", "", "test to run")
+	masterHostPort = flag.String("master", "", "The host:port of the master server")
 )
 
 func init() {
@@ -28,15 +29,22 @@ func init() {
 	log.SetOutput(f)
 }
 
-var LOGE = log.New(os.Stderr, "", log.Lshortfile|log.Lmicroseconds)
-
 func testPaxosBasic1() {
-	log.Println("FUCK DA POLICE")
-	master.Propose(&paxosrpc.ProposeArgs{struct{}{}}, new(paxosrpc.ProposeReply))
+	err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{struct{}{}}, new(paxosrpc.ProposeReply))
+	if err != nil {
+		log.Println(err)
+	}
 	time.Sleep(5 * time.Second)
 }
 
-func StartTests(master paxos.Paxos) {
+func main() {
+	flag.Parse()
+	var err error
+	master, err = rpc.DialHTTP("tcp", *masterHostPort)
+	if err != nil {
+		log.Fatalln("Failed to connect to the master server")
+	}
+
 	tests := []testFunc{
 		{"testPaxosBasic1", testPaxosBasic1},
 	}

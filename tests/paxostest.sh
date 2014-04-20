@@ -9,7 +9,7 @@ if [ -n "$(go version | grep 'darwin/amd64')" ]; then
     GOOS="darwin_amd64"
 elif [ -n "$(go version | grep 'linux/amd64')" ]; then
     GOOS="linux_amd64"
-else
+else	
     echo "FAIL: only 64-bit Mac OS X and Linux operating systems are supported"
     exit 1
 fi
@@ -30,14 +30,14 @@ fi
 # Pick random port between [10000, 20000).
 PAXOS_PORT=$(((RANDOM % 10000) + 10000))
 PAXOS_SERVER=$GOPATH/bin/runners
-#STRESS_CLIENT=$GOPATH/bin/stresstest
+PAXOS_TEST=$GOPATH/bin/paxostest
 
 function startPaxosServers {
     N=${#PAXOS_ID[@]}
-    # Start master storage server.
+    # Start master paxos server.
     ${PAXOS_SERVER} -N=${N} -id=${PAXOS_ID[0]} -port=${PAXOS_PORT} &> /dev/null &
     PAXOS_SERVER_PID[0]=$!
-    # Start slave storage servers.
+    # Start slave paxos servers.
     if [ "$N" -gt 1 ]
     then
         for i in `seq 1 $((N - 1))`
@@ -47,6 +47,8 @@ function startPaxosServers {
             PAXOS_SERVER_PID[$i]=$!
         done
     fi
+    sleep 2
+    ${PAXOS_TEST} -master="localhost:${PAXOS_PORT}" &> /dev/null &
 }
 
 function stopPaxosServers {
@@ -60,7 +62,7 @@ function stopPaxosServers {
 
 
 # Testing single client, single tribserver, multiple storageserver.
-function testPaxosBasic {
+function startTestThreeNodes {
     echo "Running testPaxosBasic:"
     PAXOS_ID=('0' '1' '2')
     TIMEOUT=15
@@ -69,6 +71,6 @@ function testPaxosBasic {
     stopPaxosServers
 }
 
-testPaxosBasic
+startTestThreeNodes
 
 
