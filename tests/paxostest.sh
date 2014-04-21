@@ -67,7 +67,7 @@ function startTestThreeNodes {
     PAXOS_ID=('0' '1' '2')
     TIMEOUT=15
     startPaxosServers
-    sleep 10
+    sleep 5
     stopPaxosServers
 }
 

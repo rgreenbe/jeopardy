@@ -7,6 +7,7 @@ import (
 	"net/rpc"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -30,11 +31,22 @@ func init() {
 }
 
 func testPaxosBasic1() {
-	err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{struct{}{}}, new(paxosrpc.ProposeReply))
+	err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{make([]byte, 0, 1)}, new(paxosrpc.ProposeReply))
 	if err != nil {
 		log.Println(err)
 	}
-	time.Sleep(5 * time.Second)
+	time.Sleep(1 * time.Second)
+}
+
+func testPaxosBasic2() {
+	for i := 0; i < 5; i++ {
+		message := []byte(strconv.Itoa(i))
+		err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{message}, new(paxosrpc.ProposeReply))
+		if err != nil {
+			log.Println(err)
+		}
+	}
+	time.Sleep(1 * time.Second)
 }
 
 func main() {
@@ -47,6 +59,7 @@ func main() {
 
 	tests := []testFunc{
 		{"testPaxosBasic1", testPaxosBasic1},
+		{"testPaxosBasic2", testPaxosBasic2},
 	}
 
 	// Run tests.

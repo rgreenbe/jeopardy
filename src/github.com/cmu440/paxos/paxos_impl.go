@@ -105,7 +105,10 @@ func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptRepl
 }
 
 func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitReply) error {
-	log.Println("Committed")
+	if p.compare((*p.previous).Sequence, ((*args).Committed).Sequence) == EQUAL {
+		p.previous = nil
+	}
+	log.Println("Node: ", p.nodeID, " Committed: ", (*args).Committed.Value)
 	return nil
 }
 
@@ -213,7 +216,7 @@ func (p *paxos) sendPrepare() {
 			ok++
 			if (p.numNodes / 2) < ok {
 				if oldestPrepare == nil {
-					value := p.proposalList.Front().Value
+					value := p.proposalList.Front().Value.([]byte)
 					p.sendAccept(&paxosrpc.ValueSequence{value, sequence})
 				} else {
 					p.sendAccept(oldestPrepare)
