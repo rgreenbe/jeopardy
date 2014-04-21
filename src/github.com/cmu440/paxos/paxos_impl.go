@@ -134,10 +134,7 @@ func (p *paxos) ReplaceNode(oldNode *paxosrpc.Node, newNode *paxosrpc.Node) erro
 	for index, node := range p.nodes {
 		if node.NodeID == (*oldNode).NodeID {
 			p.nodes[index] = *newNode
-			server, err := rpc.DialHTTP("tcp", (*newNode).HostPort)
-			if err != nil {
-				p.connections[index] = server
-			}
+			p.connectToNodes() //Setup the connection
 			break
 		}
 	}
@@ -216,7 +213,7 @@ func (p *paxos) sendPrepare() {
 			ok++
 			if (p.numNodes / 2) < ok {
 				if oldestPrepare == nil {
-					value := p.proposalList.Front().Value.(struct{})
+					value := p.proposalList.Front().Value
 					p.sendAccept(&paxosrpc.ValueSequence{value, sequence})
 				} else {
 					p.sendAccept(oldestPrepare)
@@ -264,6 +261,7 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence) {
 	for _, connection := range p.connections {
 		go p.rpcCommit(connection, args)
 	}
+	p.proposalList.Remove(p.proposalList.Front())
 	//p.startPrepare <- struct{}{}
 }
 
@@ -299,6 +297,7 @@ func (p *paxos) compare(highest, prepare *paxosrpc.Sequence) int {
 }
 
 func (p *paxos) connectToNodes() {
+	p.connections = make([]*rpc.Client, 0, p.numNodes-1)
 	for _, node := range p.nodes {
 		if node.NodeID != p.nodeID {
 			server, err := rpc.DialHTTP("tcp", node.HostPort)

@@ -1,0 +1,12 @@
+20:24:39.115749 prunner.go:40: Started 0
+20:24:39.120922 prunner.go:40: Started 1
+20:24:40.120733 prunner.go:40: Started 2
+20:24:41.119147 paxostest.go:55: Running testPaxosBasic1:
+20:24:41.122544 paxos_impl.go:108: Committed
+20:24:41.122704 paxos_impl.go:108: Committed
+20:24:46.120039 paxostest.go:60: Passed (0/0) tests
+20:25:42.439337 prunner.go:40: Started 0
+20:25:42.640055 prunner.go:40: Started 2
+20:25:43.442673 prunner.go:40: Started 1
+20:25:44.439487 paxostest.go:55: Running testPaxosBasic1:
+20:25:49.440429 paxostest.go:60: Passed (0/0) tests

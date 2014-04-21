@@ -23,7 +23,7 @@ type PaxosServer struct {
 }
 
 type ValueSequence struct {
-	Value    struct{}
+	Value    interface{}
 	Sequence *Sequence
 }
 
