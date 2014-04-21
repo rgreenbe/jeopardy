@@ -6,7 +6,7 @@ public class GameInfo {
 	private int playerID;
 	private int gameID;
 	private List<String> players;
-	private List<List<Boolean>> board;
+	private List<List<Integer>> board;
 	private List<String> categories;
 	private Boolean canControl;
 	public GameInfo(){
@@ -21,8 +21,12 @@ public class GameInfo {
 	public List players(){
 		return players;
 	}
-	public List<List<Boolean>> board(){
+	public List<List<Integer>> board(){
 		return board;
+	}
+	public List<String> Categories() {
+		return categories;
+		
 	}
 	
 }

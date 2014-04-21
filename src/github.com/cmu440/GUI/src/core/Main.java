@@ -22,7 +22,7 @@ public class Main {
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	        Jeopardy game = new Jeopardy("{PlayerID:3,Test:[true,true],"
-	        		+ "board:[[true,true,false],[false,true,false]]"
+	        		+ "board:[[100,10,4],[100,10,4]],categories:[poop,hello,world]"
 	        		+ "}");
 	        
 	        // Create and set up the content pane
