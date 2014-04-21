@@ -3,7 +3,7 @@ package paxos
 import (
 	"container/list"
 	"errors"
-	"github.com/cmu440/rpc/backend"
+	"github.com/cmu440/backend"
 	"github.com/cmu440/rpc/paxosrpc"
 	"log"
 	"math"
@@ -32,7 +32,7 @@ type paxos struct {
 	highestSequence *paxosrpc.Sequence
 	previous        *paxosrpc.ValueSequence
 	backend         *Backend
-	commits         [][]byte
+	commits         []*paxosrpc.CommitArgs
 }
 
 func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, backend *Backend) (Paxos, error) {
@@ -46,7 +46,7 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 		time.Sleep(time.Millisecond * 200) //Retry in a second
 	}
 	p := &paxos{false, numNodes, nodeID, masterID, nil, list.New(), make(chan struct{}, 1000), nil,
-		make([]*rpc.Client, 0, numNodes-1), nil, nil, backend, make([][]byte, 0, 100)}
+		make([]*rpc.Client, 0, numNodes-1), nil, nil, backend, make([]*paxosrpc.CommitArgs, 0, 100)}
 	for {
 		err = rpc.RegisterName("Paxos", paxosrpc.Wrap(p))
 		if err == nil {
@@ -138,14 +138,23 @@ func (p *paxos) GetServers(args *paxosrpc.GetServerArgs, reply *paxosrpc.GetServ
 	return nil
 }
 
-func (p *paxos) ReplaceNode(oldNode *paxosrpc.Node, newNode *paxosrpc.Node) error {
+func (p *paxos) ReplaceNode(args *paxosrpc.ReplaceNodeArgs, reply *paxosrpc.ReplaceNodeReply) error {
+	oldNode := args.OldNode
+	newNode := args.NewNode
 	for index, node := range p.nodes {
 		if node.NodeID == (*oldNode).NodeID {
 			p.nodes[index] = *newNode
+
 			p.connectToNodes() //Setup the connection
+			reply := new(paxosrpc.CommitReply)
+			for _, commit := range p.commits {
+				newNode.RecvCommit(commit, reply)
+			}
+			(*reply).Done = true
 			break
 		}
 	}
+	(*reply).Done = false
 	return errors.New("Old node does not exist")
 }
 
