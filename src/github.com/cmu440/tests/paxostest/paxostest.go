@@ -33,6 +33,7 @@ var (
 	t              tester
 	testRegex      = flag.String("t", "", "test to run")
 	masterHostPort = flag.String("master", "", "The host:port of the master server")
+	numNodes       = flag.Int("nodes", 3, "The number of nodes in the paxos ring")
 )
 
 func init() {
@@ -49,10 +50,10 @@ func (t *tester) sendAndListen(n int) {
 			log.Println(err)
 		}
 	}
-	for i := 0; i < n*2; i++ {
-		message := <-t.messages
-		log.Println(message)
+	for i := 0; i < n*(*numNodes); i++ {
+		_ = <-t.messages
 	}
+	log.Println("Passed!")
 }
 
 func (t *tester) acceptConnections() {
@@ -64,7 +65,7 @@ func (t *tester) acceptConnections() {
 	if err != nil {
 		log.Println(err)
 	}
-	buf := make([]byte, 1024)
+	buf := make([]byte, 64)
 	for {
 		n, err := t.connection.Read(buf)
 		if err != nil {
@@ -83,6 +84,10 @@ func testPaxosBasic2() {
 	t.sendAndListen(5)
 }
 
+func testPaxosBasic3() {
+	t.sendAndListen(300)
+}
+
 func main() {
 	flag.Parse()
 	var err error
@@ -93,11 +98,12 @@ func main() {
 	tests := []testFunc{
 		{"testPaxosBasic1", testPaxosBasic1},
 		{"testPaxosBasic2", testPaxosBasic2},
+		{"testPaxosBasic3", testPaxosBasic3},
 	}
 	// Run tests.
 	rand.Seed(time.Now().Unix())
 	myHostPort = "localhost:" + strconv.Itoa(10000+(rand.Int()%10000))
-	t = tester{make(chan string), myHostPort, nil}
+	t = tester{make(chan string, 1000), myHostPort, nil}
 	go t.acceptConnections()
 	for _, t := range tests {
 		if b, err := regexp.MatchString(*testRegex, t.name); b && err == nil {

@@ -4,7 +4,6 @@ import (
 	"log"
 	"net"
 	"strings"
-	"time"
 )
 
 type stub struct {
@@ -32,7 +31,6 @@ func (s *stub) RecvCommit(commitMessage []byte) error {
 	if err != nil {
 		log.Println(err)
 	}
-	time.Sleep(100 * time.Millisecond)
 	conn.Close()
 	return nil
 }
