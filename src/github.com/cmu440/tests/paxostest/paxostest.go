@@ -19,9 +19,9 @@ type testFunc struct {
 }
 
 type tester struct {
-	messages    chan string
-	hostPort    string
-	connections []net.Conn
+	messages   chan string
+	hostPort   string
+	connection *net.UDPConn
 }
 
 var (
@@ -33,6 +33,7 @@ var (
 	t              tester
 	testRegex      = flag.String("t", "", "test to run")
 	masterHostPort = flag.String("master", "", "The host:port of the master server")
+	numNodes       = flag.Int("nodes", 3, "The number of nodes in the paxos ring")
 )
 
 func init() {
@@ -49,44 +50,29 @@ func (t *tester) sendAndListen(n int) {
 			log.Println(err)
 		}
 	}
-	for i := 0; i < n; i++ {
-		message := <-t.messages
-		log.Println(message)
+	for i := 0; i < n*(*numNodes); i++ {
+		_ = <-t.messages
 	}
+	log.Println("Passed!")
 }
 
 func (t *tester) acceptConnections() {
-	socket, err := net.Listen("tcp", t.hostPort)
+	addr, err := net.ResolveUDPAddr("udp", t.hostPort)
 	if err != nil {
 		log.Println(err)
 	}
+	t.connection, err = net.ListenUDP("udp", addr)
+	if err != nil {
+		log.Println(err)
+	}
+	buf := make([]byte, 64)
 	for {
-		conn, err := socket.Accept()
+		n, err := t.connection.Read(buf)
 		if err != nil {
 			log.Println(err)
-		}
-		t.connections = append(t.connections, conn)
-		go t.handleConnection(conn)
-	}
-}
-
-func (t *tester) close() {
-	for _, conn := range t.connections {
-		conn.Close()
-	}
-}
-
-func (t *tester) handleConnection(conn net.Conn) {
-	b := make([]byte, 0, 100)
-	for {
-		_, err := conn.Read(b)
-		if err != nil {
-			log.Println(err, b)
 			return
-		} else {
-			log.Println(b)
 		}
-		t.messages <- string(b)
+		t.messages <- string(buf[0:n])
 	}
 }
 
@@ -96,6 +82,10 @@ func testPaxosBasic1() {
 
 func testPaxosBasic2() {
 	t.sendAndListen(5)
+}
+
+func testPaxosBasic3() {
+	t.sendAndListen(300)
 }
 
 func main() {
@@ -108,18 +98,19 @@ func main() {
 	tests := []testFunc{
 		{"testPaxosBasic1", testPaxosBasic1},
 		{"testPaxosBasic2", testPaxosBasic2},
+		{"testPaxosBasic3", testPaxosBasic3},
 	}
 	// Run tests.
 	rand.Seed(time.Now().Unix())
 	myHostPort = "localhost:" + strconv.Itoa(10000+(rand.Int()%10000))
-	t = tester{make(chan string), myHostPort, make([]net.Conn, 0, 10)}
+	t = tester{make(chan string, 1000), myHostPort, nil}
 	go t.acceptConnections()
 	for _, t := range tests {
 		if b, err := regexp.MatchString(*testRegex, t.name); b && err == nil {
 			log.Printf("Running %s:\n", t.name)
 			t.f()
+			time.Sleep(time.Millisecond * 100)
 		}
 	}
-	t.close()
 	log.Printf("Passed (%d/%d) tests\n", passCount, passCount+failCount)
 }

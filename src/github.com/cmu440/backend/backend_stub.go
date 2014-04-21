@@ -18,10 +18,14 @@ func (s *stub) RecvCommit(commitMessage []byte) error {
 	items := strings.Split(commit, ",")
 	hostPort := items[0]
 	message := items[1]
-	log.Println("Backend got: ", message, "from: ", hostPort)
-	conn, err := net.Dial("tcp", hostPort)
+	cAddr, err := net.ResolveUDPAddr("udp", ":0")
+	sAddr, err := net.ResolveUDPAddr("udp", hostPort)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
+	}
+	conn, err := net.DialUDP("udp", cAddr, sAddr)
+	if err != nil {
+		log.Fatalln(err)
 	}
 	_, err = conn.Write([]byte(message))
 	if err != nil {

@@ -16,12 +16,12 @@ fi
 
 # Build the test binary to use to test the student's libstore implementation.
 # Exit immediately if there was a compile-time error.
-go install github.com/cmu440/tests/paxostest
+go install -race github.com/cmu440/tests/paxostest
 if [ $? -ne 0 ]; then
    echo "FAIL: code does not compile"
    exit $?
 fi
-go install github.com/cmu440/runners
+go install -race github.com/cmu440/runners
 if [ $? -ne 0 ]; then
    echo "FAIL: code does not compile"
    exit $?
@@ -35,7 +35,7 @@ PAXOS_TEST=$GOPATH/bin/paxostest
 function startPaxosServers {
     N=${#PAXOS_ID[@]}
     # Start master paxos server.
-    ${PAXOS_SERVER} -N=${N} -id=${PAXOS_ID[0]} -port=${PAXOS_PORT} &> /dev/null &
+    ${PAXOS_SERVER} -N=${N} -id=${PAXOS_ID[0]} -port=${PAXOS_PORT} &> output.txt &
     PAXOS_SERVER_PID[0]=$!
     # Start slave paxos servers.
     if [ "$N" -gt 1 ]
@@ -43,12 +43,12 @@ function startPaxosServers {
         for i in `seq 1 $((N - 1))`
         do
 	    PAXOS_SLAVE_PORT=$(((RANDOM % 10000) + 10000))
-            ${PAXOS_SERVER} -port=${PAXOS_SLAVE_PORT} -id=${PAXOS_ID[$i]} -N=${N} -master="localhost:${PAXOS_PORT}" &> /dev/null &
+            ${PAXOS_SERVER} -port=${PAXOS_SLAVE_PORT} -id=${PAXOS_ID[$i]} -N=${N} -master="localhost:${PAXOS_PORT}" &> output.txt &
             PAXOS_SERVER_PID[$i]=$!
         done
     fi
     sleep 2
-    ${PAXOS_TEST} -master="localhost:${PAXOS_PORT}" &> /dev/null &
+    ${PAXOS_TEST} -master="localhost:${PAXOS_PORT}" -nodes=${N} &> output.txt &
 }
 
 function stopPaxosServers {
