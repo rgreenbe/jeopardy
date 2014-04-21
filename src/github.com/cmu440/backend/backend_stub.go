@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"log"
 	"net"
 	"strings"
 )
@@ -17,7 +18,9 @@ func (s *stub) RecvCommit(commitMessage []byte) error {
 	items := strings.Split(commit, ",")
 	hostPort := items[0]
 	message := items[1]
-	conn, err := net.Dial("tcp", hostPort)
+	log.Println("Backend got", message)
+	conn, _ := net.Dial("tcp", hostPort)
 	conn.Write([]byte(message))
 	conn.Close()
+	return nil
 }

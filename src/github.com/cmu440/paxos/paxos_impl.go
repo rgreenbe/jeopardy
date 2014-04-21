@@ -3,7 +3,7 @@ package paxos
 import (
 	"container/list"
 	"errors"
-	"github.com/cmu440/rpc/backend"
+	"github.com/cmu440/backend"
 	"github.com/cmu440/rpc/paxosrpc"
 	"log"
 	"math"
@@ -31,11 +31,11 @@ type paxos struct {
 	connections     []*rpc.Client
 	highestSequence *paxosrpc.Sequence
 	previous        *paxosrpc.ValueSequence
-	backend         *Backend
+	learner         *backend.Backend
 	commits         [][]byte
 }
 
-func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, backend *Backend) (Paxos, error) {
+func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, learner *backend.Backend) (Paxos, error) {
 	var listener net.Listener
 	var err error
 	for {
@@ -112,7 +112,7 @@ func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitRepl
 		p.previous = nil
 	}
 	p.commits = append(p.commits, (*args).Committed.Value)
-	p.backend.RecvCommit((*args).Committed.Value)
+	p.learner.RecvCommit((*args).Committed.Value)
 	log.Println("Node: ", p.nodeID, " Committed: ", (*args).Committed.Value)
 	return nil
 }
