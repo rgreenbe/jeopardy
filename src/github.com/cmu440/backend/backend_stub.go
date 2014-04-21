@@ -12,7 +12,7 @@ func NewStub() Backend {
 	return &stub{}
 }
 
-func (s *stub) RevcCommit(commitMessage []byte) error {
+func (s *stub) RecvCommit(commitMessage []byte) error {
 	commit := string(commitMessage)
 	items := strings.Split(commit, ",")
 	hostPort := items[0]

@@ -3,6 +3,7 @@ package paxos
 import (
 	"container/list"
 	"errors"
+	"github.com/cmu440/rpc/backend"
 	"github.com/cmu440/rpc/paxosrpc"
 	"log"
 	"math"
@@ -30,9 +31,10 @@ type paxos struct {
 	connections     []*rpc.Client
 	highestSequence *paxosrpc.Sequence
 	previous        *paxosrpc.ValueSequence
+	backend         *Backend
 }
 
-func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64) (Paxos, error) {
+func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, backend *Backend) (Paxos, error) {
 	var listener net.Listener
 	var err error
 	for {
@@ -43,7 +45,7 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 		time.Sleep(time.Millisecond * 200) //Retry in a second
 	}
 	p := &paxos{false, numNodes, nodeID, masterID, nil, list.New(), make(chan struct{}, 1000), nil,
-		make([]*rpc.Client, 0, numNodes-1), nil, nil}
+		make([]*rpc.Client, 0, numNodes-1), nil, nil, backend}
 	for {
 		err = rpc.RegisterName("Paxos", paxosrpc.Wrap(p))
 		if err == nil {
