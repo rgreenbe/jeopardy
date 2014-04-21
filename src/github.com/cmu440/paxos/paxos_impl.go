@@ -32,6 +32,7 @@ type paxos struct {
 	highestSequence *paxosrpc.Sequence
 	previous        *paxosrpc.ValueSequence
 	backend         *Backend
+	commits         [][]byte
 }
 
 func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, backend *Backend) (Paxos, error) {
@@ -45,7 +46,7 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 		time.Sleep(time.Millisecond * 200) //Retry in a second
 	}
 	p := &paxos{false, numNodes, nodeID, masterID, nil, list.New(), make(chan struct{}, 1000), nil,
-		make([]*rpc.Client, 0, numNodes-1), nil, nil, backend}
+		make([]*rpc.Client, 0, numNodes-1), nil, nil, backend, make([][]byte, 0, 100)}
 	for {
 		err = rpc.RegisterName("Paxos", paxosrpc.Wrap(p))
 		if err == nil {
@@ -110,6 +111,8 @@ func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitRepl
 	if p.compare((*p.previous).Sequence, ((*args).Committed).Sequence) == EQUAL {
 		p.previous = nil
 	}
+	p.commits = append(p.commits, (*args).Committed.Value)
+	p.backend.RecvCommit((*args).Committed.Value)
 	log.Println("Node: ", p.nodeID, " Committed: ", (*args).Committed.Value)
 	return nil
 }
