@@ -57,3 +57,11 @@ type ProposeArgs struct {
 type ProposeReply struct {
 	Status Status
 }
+type ReplaceNodeArgs struct {
+	Update  bool
+	OldNode *paxosrpc.Node
+	NewNode *paxosrpc.Node
+}
+type ReplaceNodeReply struct {
+	Done bool
+}
