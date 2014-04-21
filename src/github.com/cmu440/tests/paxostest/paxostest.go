@@ -4,6 +4,8 @@ import (
 	"flag"
 	"github.com/cmu440/rpc/paxosrpc"
 	"log"
+	"math/rand"
+	"net"
 	"net/rpc"
 	"os"
 	"regexp"
@@ -16,10 +18,19 @@ type testFunc struct {
 	f    func()
 }
 
+type tester struct {
+	messages    chan string
+	hostPort    string
+	connections []net.Conn
+}
+
 var (
 	passCount      int
 	failCount      int
 	master         *rpc.Client
+	myHostPort     string
+	conn           *net.Listener
+	t              tester
 	testRegex      = flag.String("t", "", "test to run")
 	masterHostPort = flag.String("master", "", "The host:port of the master server")
 )
@@ -30,24 +41,61 @@ func init() {
 	log.SetOutput(f)
 }
 
-func testPaxosBasic1() {
-	message := []byte("localhost:10004,0")
-	err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{message}, new(paxosrpc.ProposeReply))
-	if err != nil {
-		log.Println(err)
-	}
-	time.Sleep(1 * time.Second)
-}
-
-func testPaxosBasic2() {
-	for i := 0; i < 5; i++ {
-		message := []byte("localhost:10004," + strconv.Itoa(i))
+func (t *tester) sendAndListen(n int) {
+	for i := 0; i < n; i++ {
+		message := []byte(myHostPort + "," + strconv.Itoa(i))
 		err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{message}, new(paxosrpc.ProposeReply))
 		if err != nil {
 			log.Println(err)
 		}
 	}
-	time.Sleep(1 * time.Second)
+	for i := 0; i < n; i++ {
+		message := <-t.messages
+		log.Println(message)
+	}
+}
+
+func (t *tester) acceptConnections() {
+	socket, err := net.Listen("tcp", t.hostPort)
+	if err != nil {
+		log.Println(err)
+	}
+	for {
+		conn, err := socket.Accept()
+		if err != nil {
+			log.Println(err)
+		}
+		t.connections = append(t.connections, conn)
+		go t.handleConnection(conn)
+	}
+}
+
+func (t *tester) close() {
+	for _, conn := range t.connections {
+		conn.Close()
+	}
+}
+
+func (t *tester) handleConnection(conn net.Conn) {
+	b := make([]byte, 0, 100)
+	for {
+		_, err := conn.Read(b)
+		if err != nil {
+			log.Println(err, b)
+			return
+		} else {
+			log.Println(b)
+		}
+		t.messages <- string(b)
+	}
+}
+
+func testPaxosBasic1() {
+	t.sendAndListen(1)
+}
+
+func testPaxosBasic2() {
+	t.sendAndListen(5)
 }
 
 func main() {
@@ -57,19 +105,21 @@ func main() {
 	if err != nil {
 		log.Fatalln("Failed to connect to the master server")
 	}
-
 	tests := []testFunc{
 		{"testPaxosBasic1", testPaxosBasic1},
 		{"testPaxosBasic2", testPaxosBasic2},
 	}
-
 	// Run tests.
+	rand.Seed(time.Now().Unix())
+	myHostPort = "localhost:" + strconv.Itoa(10000+(rand.Int()%10000))
+	t = tester{make(chan string), myHostPort, make([]net.Conn, 0, 10)}
+	go t.acceptConnections()
 	for _, t := range tests {
 		if b, err := regexp.MatchString(*testRegex, t.name); b && err == nil {
 			log.Printf("Running %s:\n", t.name)
 			t.f()
 		}
 	}
-
+	t.close()
 	log.Printf("Passed (%d/%d) tests\n", passCount, passCount+failCount)
 }

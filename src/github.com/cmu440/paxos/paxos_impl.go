@@ -115,7 +115,6 @@ func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitRepl
 	}
 	p.commits = append(p.commits, args)
 	p.learner.RecvCommit((*args).Committed.Value)
-	log.Println("Node: ", p.nodeID, " Committed: ", (*args).Committed.Value)
 	return nil
 }
 
