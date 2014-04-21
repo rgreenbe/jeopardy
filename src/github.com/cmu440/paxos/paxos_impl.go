@@ -113,7 +113,7 @@ func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitRepl
 	if p.compare((*p.previous).Sequence, ((*args).Committed).Sequence) == EQUAL {
 		p.previous = nil
 	}
-	p.commits = append(p.commits, (*args).Committed.Value)
+	p.commits = append(p.commits, args)
 	p.learner.RecvCommit((*args).Committed.Value)
 	log.Println("Node: ", p.nodeID, " Committed: ", (*args).Committed.Value)
 	return nil
@@ -143,17 +143,19 @@ func (p *paxos) GetServers(args *paxosrpc.GetServerArgs, reply *paxosrpc.GetServ
 func (p *paxos) ReplaceNode(args *paxosrpc.ReplaceNodeArgs, reply *paxosrpc.ReplaceNodeReply) error {
 	oldNode := args.OldNode
 	newNode := args.NewNode
+	dummyReply := new(paxosrpc.CommitReply)
+	server, err := rpc.DialHTTP("tcp", newNode.HostPort)
+	if err != nil {
+		(*reply).Done = false
+	}
 	for index, node := range p.nodes {
-		if node.NodeID == (*oldNode).NodeID {
-			p.nodes[index] = *newNode
-
-			p.connectToNodes() //Setup the connection
-			reply := new(paxosrpc.CommitReply)
+		if node.NodeID == (oldNode).NodeID {
+			p.nodes[index] = newNode
 			for _, commit := range p.commits {
-				newNode.RecvCommit(commit, reply)
+				server.Call("Paxos.RecvCommit", commit, dummyReply)
 			}
 			(*reply).Done = true
-			break
+			return nil
 		}
 	}
 	(*reply).Done = false

@@ -13,7 +13,7 @@ type Paxos interface {
 
 	GetServers(args *paxosrpc.GetServerArgs, reply *paxosrpc.GetServerReply) error
 
-	ReplaceNode(oldNode *paxosrpc.Node, newNode *paxosrpc.Node) error
+	ReplaceNode(oldNode *paxosrpc.ReplaceNodeArgs, newNode *paxosrpc.ReplaceNodeReply) error
 
 	MasterServer(args *paxosrpc.GetMasterArgs, reply *paxosrpc.GetMasterReply) error
 

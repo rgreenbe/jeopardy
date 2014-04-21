@@ -9,7 +9,7 @@ type RemotePaxosServer interface {
 
 	GetServers(args *GetServerArgs, reply *GetServerReply) error
 
-	ReplaceNode(oldNode *Node, newNode *Node) error
+	ReplaceNode(oldNode *ReplaceNodeArgs, newNode *ReplaceNodeReply) error
 
 	MasterServer(args *GetMasterArgs, reply *GetMasterReply) error
 

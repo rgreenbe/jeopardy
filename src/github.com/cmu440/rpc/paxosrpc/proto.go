@@ -59,8 +59,8 @@ type ProposeReply struct {
 }
 type ReplaceNodeArgs struct {
 	Update  bool
-	OldNode *paxosrpc.Node
-	NewNode *paxosrpc.Node
+	OldNode Node
+	NewNode Node
 }
 type ReplaceNodeReply struct {
 	Done bool

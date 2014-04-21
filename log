@@ -38,3 +38,33 @@
 23:58:48.941698 backend_stub.go:21: Backend got 4
 23:58:48.941732 paxos_impl.go:116: Node:  2  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 52]
 23:58:49.940823 paxostest.go:74: Passed (0/0) tests
+00:08:58.643150 prunner.go:41: Started 0
+00:08:58.648137 prunner.go:41: Started 2
+00:08:59.644608 prunner.go:41: Started 1
+00:09:00.646535 paxostest.go:69: Running testPaxosBasic1:
+00:09:00.656568 backend_stub.go:21: Backend got 0
+00:09:00.658647 paxos_impl.go:118: Node:  1  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 48]
+00:09:00.660364 backend_stub.go:21: Backend got 0
+00:09:00.660413 paxos_impl.go:118: Node:  2  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 48]
+00:09:01.659949 paxostest.go:69: Running testPaxosBasic2:
+00:09:01.660712 backend_stub.go:21: Backend got 0
+00:09:01.660764 paxos_impl.go:118: Node:  1  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 48]
+00:09:01.661050 backend_stub.go:21: Backend got 0
+00:09:01.661080 paxos_impl.go:118: Node:  2  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 48]
+00:09:01.661265 backend_stub.go:21: Backend got 1
+00:09:01.661287 paxos_impl.go:118: Node:  1  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 49]
+00:09:01.661427 backend_stub.go:21: Backend got 1
+00:09:01.661454 paxos_impl.go:118: Node:  2  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 49]
+00:09:01.661624 backend_stub.go:21: Backend got 2
+00:09:01.661646 paxos_impl.go:118: Node:  1  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 50]
+00:09:01.661783 backend_stub.go:21: Backend got 2
+00:09:01.661804 paxos_impl.go:118: Node:  2  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 50]
+00:09:01.661972 backend_stub.go:21: Backend got 3
+00:09:01.661993 paxos_impl.go:118: Node:  1  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 51]
+00:09:01.662185 backend_stub.go:21: Backend got 3
+00:09:01.662223 paxos_impl.go:118: Node:  2  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 51]
+00:09:01.662422 backend_stub.go:21: Backend got 4
+00:09:01.662446 paxos_impl.go:118: Node:  1  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 52]
+00:09:01.662520 backend_stub.go:21: Backend got 4
+00:09:01.662540 paxos_impl.go:118: Node:  2  Committed:  [108 111 99 97 108 104 111 115 116 58 49 48 48 48 52 44 52]
+00:09:02.661229 paxostest.go:74: Passed (0/0) tests
