@@ -31,11 +31,11 @@ type paxos struct {
 	connections     []*rpc.Client
 	highestSequence *paxosrpc.Sequence
 	previous        *paxosrpc.ValueSequence
-	learner         *backend.Backend
+	learner         backend.Backend
 	commits         [][]byte
 }
 
-func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, learner *backend.Backend) (Paxos, error) {
+func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, learner backend.Backend) (Paxos, error) {
 	var listener net.Listener
 	var err error
 	for {
@@ -46,7 +46,7 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 		time.Sleep(time.Millisecond * 200) //Retry in a second
 	}
 	p := &paxos{false, numNodes, nodeID, masterID, nil, list.New(), make(chan struct{}, 1000), nil,
-		make([]*rpc.Client, 0, numNodes-1), nil, nil, backend, make([][]byte, 0, 100)}
+		make([]*rpc.Client, 0, numNodes-1), nil, nil, learner, make([][]byte, 0, 100)}
 	for {
 		err = rpc.RegisterName("Paxos", paxosrpc.Wrap(p))
 		if err == nil {
@@ -112,6 +112,7 @@ func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitRepl
 		p.previous = nil
 	}
 	p.commits = append(p.commits, (*args).Committed.Value)
+	log.Println("here")
 	p.learner.RecvCommit((*args).Committed.Value)
 	log.Println("Node: ", p.nodeID, " Committed: ", (*args).Committed.Value)
 	return nil

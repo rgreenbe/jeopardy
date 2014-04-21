@@ -31,7 +31,8 @@ func init() {
 }
 
 func testPaxosBasic1() {
-	err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{make([]byte, 0, 1)}, new(paxosrpc.ProposeReply))
+	message := []byte("localhost:10004,0")
+	err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{message}, new(paxosrpc.ProposeReply))
 	if err != nil {
 		log.Println(err)
 	}
@@ -40,7 +41,7 @@ func testPaxosBasic1() {
 
 func testPaxosBasic2() {
 	for i := 0; i < 5; i++ {
-		message := []byte(strconv.Itoa(i))
+		message := []byte("localhost:10004," + strconv.Itoa(i))
 		err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{message}, new(paxosrpc.ProposeReply))
 		if err != nil {
 			log.Println(err)
