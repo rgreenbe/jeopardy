@@ -1,39 +1,10 @@
-22:04:24.662506 prunner.go:40: Started 0
-22:04:24.669698 prunner.go:40: Started 2
-22:04:25.665631 prunner.go:40: Started 1
-22:04:26.666823 paxostest.go:69: Running testPaxosBasic1:
-22:04:27.668083 paxostest.go:69: Running testPaxosBasic2:
-22:04:27.668147 paxostest.go:44: [48]
-22:04:27.668170 paxostest.go:47: connection is shut down
-22:04:27.668183 paxostest.go:44: [49]
-22:04:27.668195 paxostest.go:47: connection is shut down
-22:04:27.668206 paxostest.go:44: [50]
-22:04:27.668217 paxostest.go:47: connection is shut down
-22:04:27.668228 paxostest.go:44: [51]
-22:04:27.668240 paxostest.go:47: connection is shut down
-22:04:27.668251 paxostest.go:44: [52]
-22:04:27.668262 paxostest.go:47: connection is shut down
-22:04:28.668377 paxostest.go:74: Passed (0/0) tests
-22:06:13.787492 prunner.go:40: Started 0
-22:06:13.795837 prunner.go:40: Started 2
-22:06:14.791318 prunner.go:40: Started 1
-22:06:15.795118 paxostest.go:69: Running testPaxosBasic1:
-22:06:15.804875 paxos_impl.go:111: Node:  2  Committed:  []
-22:06:15.805090 paxos_impl.go:111: Node:  1  Committed:  []
-22:06:16.798215 paxostest.go:69: Running testPaxosBasic2:
-22:06:16.798332 paxostest.go:44: [48]
-22:06:16.798746 paxostest.go:44: [49]
-22:06:16.798969 paxostest.go:44: [50]
-22:06:16.799091 paxostest.go:44: [51]
-22:06:16.799225 paxos_impl.go:111: Node:  2  Committed:  [48]
-22:06:16.799355 paxostest.go:44: [52]
-22:06:16.799367 paxos_impl.go:111: Node:  1  Committed:  [48]
-22:06:16.799556 paxos_impl.go:111: Node:  1  Committed:  [49]
-22:06:16.799837 paxos_impl.go:111: Node:  2  Committed:  [49]
-22:06:16.800025 paxos_impl.go:111: Node:  1  Committed:  [50]
-22:06:16.800045 paxos_impl.go:111: Node:  2  Committed:  [50]
-22:06:16.800416 paxos_impl.go:111: Node:  1  Committed:  [51]
-22:06:16.800460 paxos_impl.go:111: Node:  2  Committed:  [51]
-22:06:16.800794 paxos_impl.go:111: Node:  1  Committed:  [52]
-22:06:16.800821 paxos_impl.go:111: Node:  2  Committed:  [52]
-22:06:17.799955 paxostest.go:74: Passed (0/0) tests
+23:56:55.001195 prunner.go:41: Started 0
+23:56:55.009770 prunner.go:41: Started 1
+23:56:56.009519 prunner.go:41: Started 2
+23:56:57.005835 paxostest.go:69: Running testPaxosBasic1:
+23:56:57.010716 paxos_impl.go:115: here
+23:56:57.010764 backend_stub.go:21: Backend got 0
+23:56:57.011263 paxos_impl.go:115: here
+23:56:57.011299 backend_stub.go:21: Backend got 0
+23:56:58.006834 paxostest.go:69: Running testPaxosBasic2:
+23:56:59.007710 paxostest.go:74: Passed (0/0) tests

@@ -4,6 +4,7 @@ package main
 
 import (
 	"flag"
+	"github.com/cmu440/backend"
 	"github.com/cmu440/paxos"
 	"log"
 	"os"
@@ -33,9 +34,9 @@ func main() {
 		*port = defaultMasterPort
 	}
 	// Create and start the StorageServer.
-	_, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID)
+	_, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID, backend.NewStub())
 	if err != nil {
-		log.Fatalln("Failed to create storage server:", err)
+		log.Fatalln("Failed to create Paxos node:", err)
 	}
 	log.Println("Started", *nodeID)
 	// Run the storage server forever.
