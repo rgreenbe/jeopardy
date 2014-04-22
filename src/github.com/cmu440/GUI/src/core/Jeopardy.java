@@ -19,4 +19,8 @@ public class Jeopardy {
 	public GameInfo Info(){
 		return gameInfo;
 	}
+	public void chooseQuestion(int row, int col) {
+		System.out.println(Integer.toString(row)+Integer.toString(col));
+		
+	}
 }

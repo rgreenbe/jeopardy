@@ -22,17 +22,16 @@ public class Main {
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	        Jeopardy game = new Jeopardy("{PlayerID:3,Test:[true,true],"
-	        		+ "board:[[100,10,4],[100,10,4]],categories:[poop,hello,world]"
+	        		+ "board:[[200,200,200,200,200],"
+	        		+ "[400,400,400,400,400],"
+	        		+ "[600,600,600,600,600],"
+	        		+ "[800,800,800,800,800]],categories:[poop,hello,world,mgode,rgreenbe]"
 	        		+ "}");
 	        
 	        // Create and set up the content pane
 	        JeopardyPanel gamePanel = new JeopardyPanel(game);
 	        gamePanel.setOpaque(true);
 	        frame.setContentPane(gamePanel);
-
-	        //game.startGame();
-
-	        // Display the window.
 	        frame.pack();
 	        frame.setVisible(true);
 	    }
