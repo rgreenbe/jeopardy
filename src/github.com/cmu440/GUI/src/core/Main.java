@@ -21,12 +21,7 @@ public class Main {
 	        JFrame frame = new JFrame(NAME);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	        Jeopardy game = new Jeopardy("{PlayerID:3,Test:[true,true],"
-	        		+ "board:[[200,200,200,200,200],"
-	        		+ "[400,400,400,400,400],"
-	        		+ "[600,600,600,600,600],"
-	        		+ "[800,800,800,800,800]],categories:[poop,hello,world,mgode,rgreenbe]"
-	        		+ "}");
+	        Jeopardy game = new Jeopardy();
 	        
 	        // Create and set up the content pane
 	        JeopardyPanel gamePanel = new JeopardyPanel(game);

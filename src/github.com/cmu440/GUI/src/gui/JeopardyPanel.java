@@ -41,6 +41,7 @@ public class JeopardyPanel extends JPanel {
         side.setPreferredSize(new Dimension(200,LENGTH));
         side.setLayout(new GridLayout(10,1));
         JButton join=new JButton();
+        join.addActionListener(new JoinListener(j));
         join.setText("Join Game");
         JPanel pad=new JPanel();
         pad.setBorder(new EmptyBorder(5,5,5,5));
