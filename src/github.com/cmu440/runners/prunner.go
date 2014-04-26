@@ -1,5 +1,3 @@
-// DO NOT MODIFY!
-
 package main
 
 import (
@@ -30,15 +28,15 @@ func init() {
 func main() {
 	flag.Parse()
 	if *masterHostPort == "" && *port == 0 {
-		// If masterHostPort string is empty, then this storage server is the master.
+		// If masterHostPort string is empty, then this node is the master.
 		*port = defaultMasterPort
 	}
-	// Create and start the StorageServer.
+	// Create and start the paxos server
 	_, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID, backend.NewStub())
 	if err != nil {
 		log.Fatalln("Failed to create Paxos node:", err)
 	}
 	log.Println("Started", *nodeID)
-	// Run the storage server forever.
+	// Run the node forever.
 	select {}
 }

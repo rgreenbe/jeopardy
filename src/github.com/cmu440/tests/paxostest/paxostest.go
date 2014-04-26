@@ -45,7 +45,7 @@ func init() {
 func (t *tester) sendAndListen(n int) {
 	for i := 0; i < n; i++ {
 		message := []byte(myHostPort + "," + strconv.Itoa(i))
-		err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{message}, new(paxosrpc.ProposeReply))
+		err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{&message}, new(paxosrpc.ProposeReply))
 		if err != nil {
 			log.Println(err)
 		}

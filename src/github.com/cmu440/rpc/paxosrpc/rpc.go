@@ -33,12 +33,13 @@ type Node struct {
 }
 
 type Sequence struct {
+	Round  uint64
 	N      uint64
 	NodeID uint64
 }
 
 // Wrap wraps s in a type-safe wrapper struct to ensure that only the desired
-// StorageServer methods are exported to receive paxosrpcs.
+// Paxos methods are exported to receive paxosrpcs.
 func Wrap(s RemotePaxosServer) RemotePaxosServer {
 	return &PaxosServer{s}
 }
