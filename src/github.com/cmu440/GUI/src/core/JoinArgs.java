@@ -1,8 +1,8 @@
 package core;
 
-public class JoinReq {
+public class JoinArgs {
 	private String hostport;
-	public JoinReq(String hostport){
+	public JoinArgs(String hostport){
 		this.hostport=hostport;
 	}
 }

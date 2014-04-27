@@ -2,6 +2,10 @@ package core;
 
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -15,7 +19,21 @@ public class Jeopardy {
 	private Gson gson;
 	private GameInfo gameInfo;
 	private int turn;
-	public Jeopardy(){
+	private String hostport;
+	private Socket s;
+
+	public Jeopardy(String hostport){
+		this.hostport=hostport;
+		try {
+			s = new Socket("localhost",8080);
+			(new Thread(new NetworkListener(s,this))).start();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		String json="{PlayerID:3,Test:[true,true],"
         		+ "board:[[200,200,200,200,200],"
         		+ "[400,400,400,400,400],"
@@ -38,19 +56,32 @@ public class Jeopardy {
 	}
 	public void answerQuestion(){
 	}
-	public void joinGame(){
-		System.out.println("Join:");
-		Scanner sc = new Scanner(System.in);
-		System.out.println("waiting for response");
+	private String makeJson(String command,String jsonObject){
+		return ("{\""+command+"\":"+jsonObject+"}\n");
+			
+	}
+	public void joinGame() throws IOException{
+		JoinArgs join =new JoinArgs(hostport);
+		OutputStream out = s.getOutputStream();
+		System.out.println("joining game");
+		out.write(makeJson("Join",gson.toJson(join)).getBytes());
+
+	}
+	public synchronized void joined(String json){
+		System.out.println(json);
+		//gson.fromJson(json, JoinRep.class);
+	}
+	public synchronized void buzzed(String json){
 		
-		try {
-			System.in.read();
-			System.out.println("GOT INPUT ");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//You need 
+	}
+	public synchronized void answered(String json){
+		
+	}
+	public synchronized void gameStarting(String json){
+		
+	}
+	public synchronized void selectedQuestion(String json){
+		
 	}
 	
 }

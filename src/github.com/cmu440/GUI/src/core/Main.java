@@ -21,7 +21,7 @@ public class Main {
 	        JFrame frame = new JFrame(NAME);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	        Jeopardy game = new Jeopardy();
+	        Jeopardy game = new Jeopardy("localhost:9090");
 	        
 	        // Create and set up the content pane
 	        JeopardyPanel gamePanel = new JeopardyPanel(game);
