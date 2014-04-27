@@ -14,18 +14,21 @@ import com.google.gson.Gson;
 
 public class Jeopardy {
 	private Map<String,Integer> players;
-	private String name;
+	private int playerID;
 	private int gameID;
 	private Gson gson;
 	private GameInfo gameInfo;
 	private int turn;
 	private String hostport;
 	private Socket s;
-
+	private OutputStream out; 
 	public Jeopardy(String hostport){
 		this.hostport=hostport;
+		this.gameID=0;
+		this.playerID=0;
 		try {
 			s = new Socket("localhost",8080);
+			out = s.getOutputStream();
 			(new Thread(new NetworkListener(s,this))).start();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -44,25 +47,26 @@ public class Jeopardy {
 		turn =0;
 		this.gameInfo=gson.fromJson(json,GameInfo.class);
 	}
+	private String makeJson(String command,String jsonObject){
+		return ("{\""+command+"\":"+jsonObject+"}\n");
+			
+	}
 	public GameInfo Info(){
 		return gameInfo;
 	}
-	public void chooseQuestion(int row, int col) {
-		System.out.println(Integer.toString(row)+Integer.toString(col));
-		
+	public void chooseQuestion(int row, int col) throws IOException {
+		QuestionArgs qa=new QuestionArgs(playerID,gameID,row,col);
+		System.out.println(gson.toJson(qa)+"SIZE: "+gson.toJson(qa).length());
+		out.write(makeJson("Question",gson.toJson(qa)).getBytes());
 	}
 	public void buzz(){
 		turn++;
 	}
 	public void answerQuestion(){
 	}
-	private String makeJson(String command,String jsonObject){
-		return ("{\""+command+"\":"+jsonObject+"}\n");
-			
-	}
+
 	public void joinGame() throws IOException{
 		JoinArgs join =new JoinArgs(hostport);
-		OutputStream out = s.getOutputStream();
 		System.out.println("joining game");
 		out.write(makeJson("Join",gson.toJson(join)).getBytes());
 
@@ -81,7 +85,9 @@ public class Jeopardy {
 		
 	}
 	public synchronized void selectedQuestion(String json){
-		
+		System.out.println(json+ "SIZE: "+json.length());
+		QuestionArgs q=gson.fromJson(json, QuestionArgs.class);
+		System.out.println("row: "+Integer.toString(q.row())+"col: ");
 	}
 	
 }

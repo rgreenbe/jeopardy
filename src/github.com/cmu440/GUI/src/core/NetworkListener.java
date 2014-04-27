@@ -10,9 +10,15 @@ public class NetworkListener implements Runnable {
 	private Socket s;
 	private InputStream in;
 	private Jeopardy j;
+	private final String join,buzz,answer,question;
 	public NetworkListener(Socket s,Jeopardy j){
 		this.s=s;
 		this.j=j;
+		this.join="{\"Join\":";
+		this.buzz="{\"Buzz\":";
+		this.answer="{\"Answer\":";
+		this.question="{\"Question\":";
+				
 		try {
 			in =s.getInputStream();
 		} catch (IOException e) {
@@ -24,36 +30,36 @@ public class NetworkListener implements Runnable {
 
 				
 		String withoutCommand= (json.replace(command, ""));
-		return withoutCommand.replace("}\n", "");
+		withoutCommand=withoutCommand.replace("}\n", "");
+		return withoutCommand.trim().replaceAll("\0", "");
 	}
 	@Override
 	public void run() {
-				byte[] buf=new byte[100];
+		byte[] buf=new byte[100];
+	
+		while (s.isConnected()){ 
+			try {
+				
+				 in.read(buf);
+				 
+				 String msg=new String(buf,"UTF-8");
+				 if(msg.startsWith(join)){
+					 j.joined(jsonString(join,msg));
+				 } else if (msg.startsWith(buzz)){
+					 j.buzzed(jsonString(buzz,msg));
+				 } else if (msg.startsWith(answer)){
+					 j.answered(jsonString(answer,msg));
+				 } else if (msg.startsWith(question)){
+					 j.selectedQuestion(jsonString(question,msg));			 
+				 } 
+				 
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+	       
+		}
 
-				while (s.isConnected()){ 
-					try {
-						 in.read(buf);
-						 
-						 String msg=new String(buf,"UTF-8");
-						 if(msg.startsWith("{\"Join\":")){
-							 j.joined(jsonString("{\"Join\":",msg));
-						 } else if (msg.startsWith("{\"Buzz")){
-							 
-						 } else if (msg.startsWith("{\"Answer")){
-							 
-						 } else if (msg.startsWith("{\"Join")){
-							 
-						 } else if (msg.startsWith("{\"Question")){
-							 
-						 } 
-						 
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} 
-			       
-				}
-		
 	}
 
 }
