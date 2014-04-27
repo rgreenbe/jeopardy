@@ -26,9 +26,7 @@ public class NetworkListener implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	private String jsonString(String command,String json){
-
-				
+	private String jsonString(String command,String json){	
 		String withoutCommand= (json.replace(command, ""));
 		withoutCommand=withoutCommand.replace("}\n", "");
 		return withoutCommand.trim().replaceAll("\0", "");

@@ -6,24 +6,37 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Questions {
-	private ArrayList<String> q;
-	public Questions(){
-		q=new ArrayList<String>();
-		String file=("assets/words.txt");
+	private ArrayList<Question> q;
+	public Questions() throws FileNotFoundException{
+		q=new ArrayList<Question>();
+		String file=("assets/Questions.txt");
 		Scanner s;
 		String question;
 		int i =0;
-		try {
-			s = new Scanner (new File(file));
+		s = new Scanner (new File(file));
 		while(s.hasNextLine()){
+
 			question=s.nextLine();
-			q.add(question  );
-			
+			if (question.startsWith("Question"+Integer.toString(i)))
+			{
+				question=question.replace("Question"+Integer.toString(i)+":","");
+				q.add(new Question(question));
+			}else if(question.startsWith("Options"+Integer.toString(i))){
+				question=question.replace("Options"+Integer.toString(i)+":","");
+				q.get(i).setOptions(question);
+			}else if(question.startsWith("Answer"+Integer.toString(i))){
+				question=question.replace("Answer"+Integer.toString(i)+":","");
+				q.get(i).setAnswer(Integer.parseInt(question));
+				i+=1;
+				
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
+		System.out.println(q.size());
+	
+	}
+	public  ArrayList<Question> questions(){
+		return q;
 	}
 }
 

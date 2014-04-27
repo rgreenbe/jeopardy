@@ -1,5 +1,7 @@
 package core;
 
+import java.io.FileNotFoundException;
+
 import gui.JeopardyPanel;
 
 import javax.swing.JFrame;
@@ -12,11 +14,16 @@ public class Main {
 	        SwingUtilities.invokeLater(new Runnable() {
 	            @Override
 	            public void run() {
-	                createAndShowJeopardy();
+	                try {
+						createAndShowJeopardy();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 	            }
 	        });
 	    }
-	    private static void createAndShowJeopardy() {
+	    private static void createAndShowJeopardy() throws FileNotFoundException {
 	        // Create and set-up the window.
 	        JFrame frame = new JFrame(NAME);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

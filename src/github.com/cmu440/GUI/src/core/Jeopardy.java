@@ -1,11 +1,13 @@
 package core;
 
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -22,10 +24,16 @@ public class Jeopardy {
 	private String hostport;
 	private Socket s;
 	private OutputStream out; 
-	public Jeopardy(String hostport){
+	private ArrayList<Question> questions;
+	private GameChangeListener listener;
+	private final int rows,cols;
+	public Jeopardy(String hostport) throws FileNotFoundException{
 		this.hostport=hostport;
 		this.gameID=0;
 		this.playerID=0;
+		rows=4;
+		cols=5;
+		this.questions=(new Questions()).questions();
 		try {
 			s = new Socket("localhost",8080);
 			out = s.getOutputStream();
@@ -71,6 +79,9 @@ public class Jeopardy {
 		out.write(makeJson("Join",gson.toJson(join)).getBytes());
 
 	}
+	public void addListener(GameChangeListener l){
+		this.listener=l;
+	}
 	public synchronized void joined(String json){
 		System.out.println(json);
 		//gson.fromJson(json, JoinRep.class);
@@ -84,10 +95,17 @@ public class Jeopardy {
 	public synchronized void gameStarting(String json){
 		
 	}
+	private int qIndex(int row,int col){
+		return (rows*row+col);
+	}
 	public synchronized void selectedQuestion(String json){
 		System.out.println(json+ "SIZE: "+json.length());
 		QuestionArgs q=gson.fromJson(json, QuestionArgs.class);
 		System.out.println("row: "+Integer.toString(q.row())+"col: ");
+		int r=q.row();
+		int c=q.col();
+		listener.selectQuestion(questions.get(qIndex(r,c)), r, c);
+		
 	}
 	
 }
