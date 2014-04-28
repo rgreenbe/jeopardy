@@ -96,7 +96,7 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 }
 
 func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error {
-	if p.nodeID == 2 && (*args).Sequence.Round < 50 {
+	if p.nodeID == 2 && (*args).Sequence.Round%2 == 1 {
 		return nil
 	}
 	p.dataLock.Lock()
@@ -122,7 +122,7 @@ func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareR
 }
 
 func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error {
-	if p.nodeID == 2 && (*args).Accept.Sequence.Round < 50 {
+	if p.nodeID == 2 && (*args).Accept.Sequence.Round%2 == 1 {
 		return nil
 	}
 	p.dataLock.Lock()
@@ -146,7 +146,7 @@ func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptRepl
 }
 
 func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitReply) error {
-	if p.nodeID == 2 && (*args).Committed.Sequence.Round < 50 {
+	if p.nodeID == 2 && (*args).Committed.Sequence.Round%2 == 1 {
 		return nil
 	}
 	p.dataLock.Lock()
@@ -383,7 +383,6 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence, ownValue bool) {
 		p.learner.RecvCommit([]byte(string((*args).Committed.Value) + " proposer" + strconv.FormatUint(p.nodeID, 10) + " round " + strconv.FormatUint((*args).Committed.Sequence.Round, 10)))
 		p.commits[(*commit).Sequence.Round] = &Round{(*commit).Sequence, commit, true}
 		p.contestedRound++
-		p.noopRound++
 		p.catchup()
 	}
 	p.dataLock.Unlock()
