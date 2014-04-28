@@ -375,6 +375,8 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence, ownValue bool) {
 		p.listLock.Lock()
 		p.proposalList.Remove(p.proposalList.Front())
 		p.listLock.Unlock()
+	} else {
+		p.startPrepare <- struct{}{}
 	}
 	p.dataLock.Lock()
 	if p.contestedRound == (*commit).Sequence.Round {
@@ -383,7 +385,6 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence, ownValue bool) {
 		p.contestedRound++
 	}
 	p.dataLock.Unlock()
-	p.startPrepare <- struct{}{} //This slot is already committed, try again
 }
 
 func (p *paxos) catchup() {

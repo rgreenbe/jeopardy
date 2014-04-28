@@ -124,9 +124,9 @@ func main() {
 		log.Fatalln("Failed to connect to the master server")
 	}
 	tests := []testFunc{
-		//{"testPaxosBasic1", testPaxosBasic1},
-		//{"testPaxosBasic2", testPaxosBasic2},
-		//{"testPaxosBasic3", testPaxosBasic3},
+		{"testPaxosBasic1", testPaxosBasic1},
+		{"testPaxosBasic2", testPaxosBasic2},
+		{"testPaxosBasic3", testPaxosBasic3},
 		{"testPaxosDuelingLeaders", testPaxosDuelingLeaders},
 	}
 	// Run tests.
