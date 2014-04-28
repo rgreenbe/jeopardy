@@ -15,7 +15,7 @@ import com.google.gson.Gson;
 
 
 public class Jeopardy {
-	private Map<String,Integer> players;
+	private ArrayList<Integer> players;
 	private int playerID;
 	private int gameID;
 	private Gson gson;
@@ -32,8 +32,10 @@ public class Jeopardy {
 		this.hostport=hostport;
 		this.gameID=0;
 		this.playerID=0;
-		rows=4;
-		cols=5;
+		rows=5;
+		cols=4;
+		players=new ArrayList<Integer>();
+		players.add(0);
 		this.questions=(new Questions()).questions();
 		try {
 			s = new Socket("localhost",8080);
@@ -65,7 +67,7 @@ public class Jeopardy {
 	}
 	public void chooseQuestion(int row, int col) throws IOException {
 		QuestionArgs qa=new QuestionArgs(playerID,gameID,row,col);
-		System.out.println("Choosing Question");
+		System.out.println("Choosing Question: "+Integer.toString(qIndex(row,col)));
 		out.write(makeJson("Question",gson.toJson(qa)).getBytes());
 	}
 	public void buzz() throws IOException{
@@ -93,10 +95,13 @@ public class Jeopardy {
 		System.out.println(json);
 		listener.buzzedIn(b.playerID());
 	}
-	public synchronized void answered(String json){
+	public synchronized void answered(String json) throws InterruptedException{
 		AnswerArgs a=gson.fromJson(json, AnswerArgs.class);
 		System.out.println("Question value: "+Integer.toString(a.scoreChange()));
-		listener.answeredQuestion(a.playerID(), a.scoreChange());
+		int score=players.get(a.playerID());
+		score+=a.scoreChange();
+		players.add(a.playerID(),score);
+		listener.answeredQuestion(a.playerID(), score,a.choice());
 		
 	}
 
@@ -116,11 +121,23 @@ public class Jeopardy {
 	public void chooseAnswer(int choice) throws IOException {
 		int scoreChange=currentQ.value();
 		if(currentQ.answer()!=choice){
-			scoreChange=-1;
+			scoreChange*=-1;
 		}
-		AnswerArgs a=new AnswerArgs(gameID,playerID,scoreChange);
+		AnswerArgs a=new AnswerArgs(gameID,playerID,scoreChange,choice);
 		out.write(makeJson("Answer",gson.toJson(a)).getBytes());
 		
+	}
+	public int playerID() {
+		return playerID;
+	}
+	public void addPlayers(int id){
+		players.add(id);
+	}
+	public ArrayList<Integer> players(){
+		return players;
+	}
+	public Question currentQuestion(){
+		return currentQ;
 	}
 	
 }
