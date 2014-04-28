@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 
@@ -20,7 +21,12 @@ public class ChooseQuestion implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		game.chooseQuestion(row,col);
+		try {
+			game.chooseQuestion(row,col);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

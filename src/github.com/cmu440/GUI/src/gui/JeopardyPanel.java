@@ -12,10 +12,12 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import core.GameChangeListener;
 import core.GameInfo;
 import core.Jeopardy;
+import core.Question;
 
-public class JeopardyPanel extends JPanel {
+public class JeopardyPanel extends JPanel implements GameChangeListener{
 	private final Jeopardy j;
 	private final int WIDTH,LENGTH,BWIDTH,BLENGTH;
 	private JButton[][] questions;
@@ -32,6 +34,7 @@ public class JeopardyPanel extends JPanel {
 		 gridPanel=createGrid();
 		 footPanel=createFootPanel();
 		 sidePanel=createSidePanel();
+		 game.addListener(this);
 		 initGui();
 	  }
 
@@ -73,14 +76,14 @@ public class JeopardyPanel extends JPanel {
 				pad.setOpaque(false);
 				pad.setBorder(new EmptyBorder(10,10,10,10));
 				JButton q=new JButton();
-				if(val!=0){
-					q.setOpaque(true);
-					q.addActionListener(new ChooseQuestion(row,col,q,j));
-					pad.add(q);
-					q.setPreferredSize(new Dimension(50,50));
-					grid.add(pad);
-					q.setText(Integer.toString(val));
-				}
+		
+				q.setOpaque(true);
+				q.addActionListener(new ChooseQuestion(row,col,q,j));
+				pad.add(q);
+				q.setPreferredSize(new Dimension(50,50));
+				grid.add(pad);
+				q.setText(Integer.toString(val));
+			
 
 			}
 		}
@@ -123,5 +126,25 @@ public class JeopardyPanel extends JPanel {
         panel.add(copyright,BorderLayout.NORTH);
         return panel;
     }
+
+	@Override
+	public void selectQuestion(Question q,int row,int col) {
+		System.out.println("Selecting question: "+q.question());
+	    gridPanel.removeAll();
+
+        gridPanel.setLayout(new GridLayout(5,1));
+        JLabel question=new JLabel(q.question());
+        gridPanel.add(question);
+        gridPanel.add(new JLabel("Select one of the options below"));
+        for(int i=0;i<q.options().size();i++){
+        	JButton option=new JButton();
+        	option.setText(q.options().get(i));
+        	gridPanel.add(option);
+        }
+        gridPanel.validate();
+        gridPanel.repaint();
+        
+		
+	}
 
 }
