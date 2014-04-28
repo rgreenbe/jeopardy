@@ -27,6 +27,7 @@ func (s *stub) RecvCommit(commitMessage []byte) error {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	log.Println(commit)
 	_, err = conn.Write([]byte(message))
 	if err != nil {
 		log.Println(err)

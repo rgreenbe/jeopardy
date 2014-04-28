@@ -14,6 +14,8 @@ type RemotePaxosServer interface {
 	MasterServer(args *GetMasterArgs, reply *GetMasterReply) error
 
 	Propose(args *ProposeArgs, reply *ProposeReply) error
+
+	Quiesce(args *QuiesceArgs, reply *QuiesceReply) error
 }
 
 type PaxosServer struct {

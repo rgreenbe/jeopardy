@@ -22,6 +22,7 @@ type tester struct {
 	messages   chan string
 	hostPort   string
 	connection *net.UDPConn
+	count      int
 }
 
 var (
@@ -44,7 +45,8 @@ func init() {
 
 func (t *tester) sendAndListen(n int) {
 	for i := 0; i < n; i++ {
-		message := []byte(myHostPort + "," + strconv.Itoa(i))
+		message := []byte(myHostPort + "," + strconv.Itoa(t.count))
+		t.count++
 		err := master.Call("Paxos.Propose", &paxosrpc.ProposeArgs{&message}, new(paxosrpc.ProposeReply))
 		if err != nil {
 			log.Println(err)
@@ -53,7 +55,18 @@ func (t *tester) sendAndListen(n int) {
 	for i := 0; i < n*(*numNodes); i++ {
 		_ = <-t.messages
 	}
+	passCount++
 	log.Println("Passed!")
+}
+
+func (t *tester) send(n int, node *rpc.Client) {
+	for i := 0; i < n; i++ {
+		message := []byte(myHostPort + "," + strconv.Itoa(i))
+		err := node.Call("Paxos.Propose", &paxosrpc.ProposeArgs{&message}, new(paxosrpc.ProposeReply))
+		if err != nil {
+			log.Println(err)
+		}
+	}
 }
 
 func (t *tester) acceptConnections() {
@@ -77,15 +90,30 @@ func (t *tester) acceptConnections() {
 }
 
 func testPaxosBasic1() {
-	t.sendAndListen(1)
+	t.sendAndListen(51)
 }
 
 func testPaxosBasic2() {
-	t.sendAndListen(5)
+	t.sendAndListen(6)
 }
 
 func testPaxosBasic3() {
 	t.sendAndListen(300)
+}
+
+func testPaxosDuelingLeaders() {
+	reply := new(paxosrpc.GetServerReply)
+	master.Call("Paxos.GetServers", new(paxosrpc.GetServerArgs), reply)
+	nodes := (*reply).Nodes
+	node1, _ := rpc.DialHTTP("tcp", nodes[1].HostPort)
+	node2, _ := rpc.DialHTTP("tcp", nodes[2].HostPort)
+	go t.send(50, node1)
+	go t.send(50, node2)
+	for i := 0; i < 300; i++ {
+		<-t.messages
+	}
+	passCount++
+	log.Println("Passed!")
 }
 
 func main() {
@@ -99,11 +127,12 @@ func main() {
 		{"testPaxosBasic1", testPaxosBasic1},
 		{"testPaxosBasic2", testPaxosBasic2},
 		{"testPaxosBasic3", testPaxosBasic3},
+		{"testPaxosDuelingLeaders", testPaxosDuelingLeaders},
 	}
 	// Run tests.
 	rand.Seed(time.Now().Unix())
 	myHostPort = "localhost:" + strconv.Itoa(10000+(rand.Int()%10000))
-	t = tester{make(chan string, 1000), myHostPort, nil}
+	t = tester{make(chan string, 1000), myHostPort, nil, 0}
 	go t.acceptConnections()
 	for _, t := range tests {
 		if b, err := regexp.MatchString(*testRegex, t.name); b && err == nil {

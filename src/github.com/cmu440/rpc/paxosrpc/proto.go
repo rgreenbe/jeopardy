@@ -65,3 +65,9 @@ type ReplaceNodeArgs struct {
 type ReplaceNodeReply struct {
 	Done bool
 }
+
+type QuiesceArgs struct {
+}
+
+type QuiesceReply struct {
+}

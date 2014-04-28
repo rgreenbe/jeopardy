@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"net/rpc"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -23,11 +24,13 @@ const (
 type Round struct {
 	highestSequence *paxosrpc.Sequence
 	previous        *paxosrpc.ValueSequence
+	committed       bool
 }
 
 type paxos struct {
 	highestSequence *paxosrpc.Sequence
 	contestedRound  uint64
+	noopRound       uint64 //Indicator of what round we are proposing noops through, if catching up
 	madeConnections bool
 	numNodes        int
 	nodeID          uint64
@@ -38,7 +41,7 @@ type paxos struct {
 	nodes           []paxosrpc.Node
 	connections     []*rpc.Client
 	learner         backend.Backend
-	commits         map[uint64]Round
+	commits         map[uint64]*Round
 	listLock        *sync.Mutex
 	dataLock        *sync.Mutex
 }
@@ -53,8 +56,8 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 		}
 		time.Sleep(time.Millisecond * 200) //Retry in a bit
 	}
-	p := &paxos{nil, 0, false, numNodes, nodeID, masterID, nil, list.New(), make(chan struct{}, 1000), nil,
-		make([]*rpc.Client, 0, numNodes-1), learner, make(map[uint64]Round), new(sync.Mutex), new(sync.Mutex)}
+	p := &paxos{nil, 0, 0, false, numNodes, nodeID, masterID, nil, list.New(), make(chan struct{}, 1000), nil,
+		make([]*rpc.Client, 0, numNodes-1), learner, make(map[uint64]*Round), new(sync.Mutex), new(sync.Mutex)}
 	for {
 		err = rpc.RegisterName("Paxos", paxosrpc.Wrap(p))
 		if err == nil {
@@ -93,6 +96,9 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 }
 
 func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error {
+	//if p.nodeID == 2 && (*args).Sequence.Round < 50 {
+	//	return nil
+	//}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 	roundNum := (*args).Sequence.Round
@@ -100,24 +106,25 @@ func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareR
 	if ok { //Somone else has prepared this round
 		if p.valid(round.highestSequence, (*args).Sequence) {
 			(*reply).Status = paxosrpc.OK
-			(*reply).Previous = round.previous
-			round.highestSequence = (*args).Sequence
+			(*reply).Previous = (*round).previous
+			(*round).highestSequence = (*args).Sequence
 			if p.valid(p.highestSequence, (*args).Sequence) {
 				p.highestSequence = (*args).Sequence
 			}
-			p.highestSequence = (*args).Sequence
-			p.commits[roundNum] = round
 		} else {
 			(*reply).Status = paxosrpc.CANCEL
 		}
 	} else {
-		p.commits[roundNum] = Round{(*args).Sequence, nil}
+		p.commits[roundNum] = &Round{(*args).Sequence, nil, false}
 		(*reply).Status = paxosrpc.OK
 	}
 	return nil
 }
 
 func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error {
+	//if p.nodeID == 2 && (*args).Accept.Sequence.Round < 50 {
+	//	return nil
+	//}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 	roundNum := (*args).Accept.Sequence.Round
@@ -139,15 +146,44 @@ func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptRepl
 }
 
 func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitReply) error {
+	//if p.nodeID == 2 && (*args).Committed.Sequence.Round < 50 {
+	//	return nil
+	//}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
+	if p.highestSequence == nil || p.compare(p.highestSequence, (*args).Committed.Sequence) == LESS {
+		p.highestSequence = (*args).Committed.Sequence
+	}
 	if (*args).Committed.Sequence.Round == p.contestedRound {
-		p.learner.RecvCommit((*args).Committed.Value)
+		round, ok := p.commits[(*args).Committed.Sequence.Round]
+		if ok {
+			(*round).committed = true
+		} else {
+			p.commits[(*args).Committed.Sequence.Round] = &Round{(*args).Committed.Sequence, (*args).Committed, true}
+		}
+		p.learner.RecvCommit([]byte(string((*args).Committed.Value) + " " + strconv.FormatUint(p.contestedRound, 10) + " " + string(p.nodeID)))
 		p.contestedRound++
+		p.noopRound = p.contestedRound
+		p.catchup()
 	} else if (*args).Committed.Sequence.Round > p.contestedRound {
-		var i uint64
-		for i = 0; i < (*args).Committed.Sequence.Round-p.contestedRound; i++ {
-			go p.Propose(new(paxosrpc.ProposeArgs), new(paxosrpc.ProposeReply))
+		round, ok := p.commits[(*args).Committed.Sequence.Round]
+		if ok {
+			(*round).committed = true
+		} else {
+			p.commits[(*args).Committed.Sequence.Round] = &Round{(*args).Committed.Sequence, (*args).Committed, true}
+		}
+		if (*args).Committed.Sequence.Round == p.noopRound {
+			//We will record the commit and send to learner when caught up
+			p.noopRound++
+		} else {
+			//We need to do some catchup because we are behind
+			var i uint64
+			var diff uint64 = (*args).Committed.Sequence.Round - p.noopRound
+			for i = 0; i < diff; i++ {
+				p.noopRound++
+				go p.Propose(new(paxosrpc.ProposeArgs), new(paxosrpc.ProposeReply))
+			}
+			p.noopRound++
 		}
 	}
 	return nil
@@ -215,9 +251,15 @@ func (p *paxos) Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply
 	p.listLock.Lock()
 	if proposal != nil {
 		p.proposalList.PushBack(*proposal)
+	} else {
+		p.proposalList.PushFront(nil)
 	}
 	p.listLock.Unlock()
 	p.startPrepare <- struct{}{}
+	return nil
+}
+
+func (p *paxos) Quiesce(args *paxosrpc.QuiesceArgs, reply *paxosrpc.QuiesceReply) error {
 	return nil
 }
 
@@ -232,31 +274,38 @@ func (p *paxos) handlePrepare() {
 
 func (p *paxos) sendPrepare() {
 	var n uint64
+	p.dataLock.Lock()
 	if p.highestSequence != nil {
 		n = p.highestSequence.N + 1
 	} else {
 		n = 1
 	}
+	sequence := &paxosrpc.Sequence{p.contestedRound, n, p.nodeID}
+	p.commits[p.contestedRound] = &Round{sequence, nil, false}
 	if !p.madeConnections {
 		p.connectToNodes()
 		p.madeConnections = true
 	}
-	sequence := &paxosrpc.Sequence{p.contestedRound, n, p.nodeID}
 	args := &paxosrpc.PrepareArgs{sequence}
 	replyChan := make(chan paxosrpc.PrepareReply, p.numNodes-1)
 	for _, connection := range p.connections {
 		go p.rpcPrepare(connection, args, replyChan)
 	}
+	//go p.rpcPrepare(nil, args, replyChan)
 	var oldestPrepare *paxosrpc.ValueSequence
 	ok := 1
 	cancel := 0
+	p.dataLock.Unlock()
 	for i := 1; i < p.numNodes; i++ {
 		reply := <-replyChan
 		if reply.Status == paxosrpc.OK {
 			if reply.Previous != nil {
+				if p.nodeID == 2 {
+					log.Println(p.contestedRound, string((*reply.Previous).Value), (*reply.Previous).Sequence.Round)
+				}
 				if oldestPrepare == nil {
 					oldestPrepare = reply.Previous
-				} else if p.compare(oldestPrepare.Sequence, (*reply.Previous).Sequence) == LESS {
+				} else if p.compare(oldestPrepare.Sequence, (*reply.Previous).Sequence) == GREATER {
 					oldestPrepare = reply.Previous
 				}
 			}
@@ -264,10 +313,14 @@ func (p *paxos) sendPrepare() {
 			if (p.numNodes / 2) < ok {
 				if oldestPrepare == nil {
 					p.listLock.Lock()
-					value := p.proposalList.Front().Value.([]byte)
+					value, ok := p.proposalList.Front().Value.([]byte)
 					p.listLock.Unlock()
+					if !ok {
+						value = nil
+					}
 					p.sendAccept(&paxosrpc.ValueSequence{value, sequence})
 				} else {
+					(*oldestPrepare).Sequence = sequence
 					p.sendAccept(oldestPrepare)
 				}
 				return
@@ -275,7 +328,7 @@ func (p *paxos) sendPrepare() {
 		} else {
 			cancel++
 			if (p.numNodes / 2) < cancel {
-				time.Sleep(time.Millisecond * 200)
+				time.Sleep(time.Millisecond * 100)
 				p.startPrepare <- struct{}{} //So sorry..try again
 				return
 			}
@@ -284,6 +337,9 @@ func (p *paxos) sendPrepare() {
 }
 
 func (p *paxos) sendAccept(accept *paxosrpc.ValueSequence) {
+	p.dataLock.Lock()
+	round, _ := p.commits[(*accept).Sequence.Round]
+	(*round).previous = accept
 	args := &paxosrpc.AcceptArgs{accept}
 	replyChan := make(chan paxosrpc.Status, p.numNodes-1)
 	for _, connection := range p.connections {
@@ -296,13 +352,15 @@ func (p *paxos) sendAccept(accept *paxosrpc.ValueSequence) {
 		if reply == paxosrpc.OK {
 			ok++
 			if (p.numNodes / 2) < ok {
+				p.dataLock.Unlock()
 				p.sendCommit(accept)
 				return
 			}
 		} else {
 			cancel++
 			if (p.numNodes / 2) < cancel {
-				time.Sleep(time.Millisecond * 200)
+				p.dataLock.Unlock()
+				time.Sleep(time.Millisecond * 100)
 				p.startPrepare <- struct{}{} //So sorry..try again
 				return
 			}
@@ -315,12 +373,27 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence) {
 	for _, connection := range p.connections {
 		go p.rpcCommit(connection, args)
 	}
+	p.dataLock.Lock()
+	defer p.dataLock.Unlock()
+	p.learner.RecvCommit([]byte(string((*args).Committed.Value) + " " + strconv.FormatUint(p.contestedRound, 10) + " proposer" + strconv.FormatUint(p.nodeID, 10)))
 	p.listLock.Lock()
 	p.proposalList.Remove(p.proposalList.Front())
 	p.listLock.Unlock()
-	p.commits[(*commit).Sequence.Round] = Round{(*commit).Sequence, commit}
-	p.learner.RecvCommit((*args).Committed.Value)
+	p.commits[(*commit).Sequence.Round] = &Round{(*commit).Sequence, commit, true}
 	p.contestedRound++
+	p.catchup()
+}
+
+func (p *paxos) catchup() {
+	for {
+		round, ok := p.commits[p.contestedRound]
+		if ok && round.committed {
+			p.contestedRound++
+			p.learner.RecvCommit(round.previous.Value)
+		} else {
+			return
+		}
+	}
 }
 
 func (p *paxos) rpcCommit(server *rpc.Client, args *paxosrpc.CommitArgs) {
@@ -330,13 +403,21 @@ func (p *paxos) rpcCommit(server *rpc.Client, args *paxosrpc.CommitArgs) {
 
 func (p *paxos) rpcAccept(server *rpc.Client, args *paxosrpc.AcceptArgs, replyChan chan paxosrpc.Status) {
 	reply := new(paxosrpc.AcceptReply)
-	server.Call("Paxos.RecvAccept", args, reply)
+	if server != nil {
+		server.Call("Paxos.RecvAccept", args, reply)
+	} else {
+		p.RecvAccept(args, reply)
+	}
 	replyChan <- (*reply).Status
 }
 
 func (p *paxos) rpcPrepare(server *rpc.Client, args *paxosrpc.PrepareArgs, replyChan chan paxosrpc.PrepareReply) {
 	reply := new(paxosrpc.PrepareReply)
-	server.Call("Paxos.RecvPrepare", args, reply)
+	if server != nil {
+		server.Call("Paxos.RecvPrepare", args, reply)
+	} else {
+		p.RecvPrepare(args, reply)
+	}
 	replyChan <- *reply
 }
 

@@ -18,4 +18,6 @@ type Paxos interface {
 	MasterServer(args *paxosrpc.GetMasterArgs, reply *paxosrpc.GetMasterReply) error
 
 	Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply) error
+
+	Quiesce(args *paxosrpc.QuiesceArgs, reply *paxosrpc.QuiesceReply) error
 }
