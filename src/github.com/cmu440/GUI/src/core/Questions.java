@@ -24,6 +24,9 @@ public class Questions {
 			}else if(question.startsWith("Options"+Integer.toString(i))){
 				question=question.replace("Options"+Integer.toString(i)+":","");
 				q.get(i).setOptions(question);
+			}else if(question.startsWith("Value"+Integer.toString(i))){
+					question=question.replace("Value"+Integer.toString(i)+":","");
+					q.get(i).setValue(Integer.parseInt(question));
 			}else if(question.startsWith("Answer"+Integer.toString(i))){
 				question=question.replace("Answer"+Integer.toString(i)+":","");
 				q.get(i).setAnswer(Integer.parseInt(question));

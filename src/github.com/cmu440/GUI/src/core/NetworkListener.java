@@ -11,7 +11,8 @@ public class NetworkListener implements Runnable {
 	private InputStream in;
 	private Jeopardy j;
 	private final String join,buzz,answer,question;
-	public NetworkListener(Socket s,Jeopardy j){
+	public NetworkListener(Socket s,Jeopardy j){ 
+		System.out.println("Starting network listener");
 		this.s=s;
 		this.j=j;
 		this.join="{\"Join\":";
@@ -33,17 +34,21 @@ public class NetworkListener implements Runnable {
 	}
 	@Override
 	public void run() {
-		byte[] buf=new byte[100];
+
 	
 		while (s.isConnected()){ 
+			byte[] buf=new byte[1000];
 			try {
-				
+
 				 in.read(buf);
 				 
 				 String msg=new String(buf,"UTF-8");
 				 if(msg.startsWith(join)){
 					 j.joined(jsonString(join,msg));
 				 } else if (msg.startsWith(buzz)){
+					 System.out.println("MESSAGE: ");
+					 System.out.println(msg);
+					 System.out.println("DONE");
 					 j.buzzed(jsonString(buzz,msg));
 				 } else if (msg.startsWith(answer)){
 					 j.answered(jsonString(answer,msg));

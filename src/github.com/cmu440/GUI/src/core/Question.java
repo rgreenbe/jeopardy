@@ -6,7 +6,8 @@ public class Question {
 	private String question;
 	private ArrayList<String> options;
 	private int answer;
-
+	private int value;
+	
 	public Question(String question) {
 		this.question=question;
 		this.options=new ArrayList<String>();
@@ -25,6 +26,13 @@ public class Question {
 	}
 	public ArrayList<String> options(){
 		return options;
+	}
+	public void setValue(int v) {
+		value=v;
+		
+	}
+	public int value() {
+		return value;
 	}
 
 }
