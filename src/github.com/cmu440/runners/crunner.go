@@ -2,6 +2,7 @@
 
 package main
 
+/*
 import (
 	"flag"
 	"github.com/cmu440/backend"
@@ -42,3 +43,4 @@ func main() {
 	// Run the storage server forever.
 	select {}
 }
+*/
