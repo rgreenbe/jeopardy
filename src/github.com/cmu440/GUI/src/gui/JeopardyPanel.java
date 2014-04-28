@@ -22,16 +22,28 @@ public class JeopardyPanel extends JPanel implements GameChangeListener{
 	private final int WIDTH,LENGTH,BWIDTH,BLENGTH;
 	private JButton[][] questions;
 	private  GameInfo gameInfo;
+	private JButton buzzer;
     private JPanel headPanel,footPanel,gridPanel,sidePanel;
-	  public JeopardyPanel(Jeopardy game) {
+    private int rows,cols;
+	public JeopardyPanel(Jeopardy game) {
+
 		 WIDTH=880;
 		 LENGTH=700;
 		 BWIDTH=500;
 		 BLENGTH=600;
+		 rows=game.Info().board().size();
+		 cols=game.Info().board().get(0).size();		 
 		 j=game;
+	     buzzer=new JButton();
+	     buzzer.setText("Buzz");
+	     buzzer.setBackground(Color.RED);
+	     buzzer.setOpaque(true);
+	     buzzer.addActionListener(new Buzzer(j));	    
 		 gameInfo=game.Info();
 		 headPanel=createHeadPanel();
-		 gridPanel=createGrid();
+		 initBoardQuestions(rows,cols);
+		 gridPanel=new JPanel();
+		 createGrid();
 		 footPanel=createFootPanel();
 		 sidePanel=createSidePanel();
 		 game.addListener(this);
@@ -55,39 +67,51 @@ public class JeopardyPanel extends JPanel implements GameChangeListener{
 		return side;
 	}
 
-	private JPanel createGrid() {
-		setBorder(new EmptyBorder(30,30,30,30));
-		JPanel grid=new JPanel();
-		grid.setOpaque(true);
+	private void createGrid() {
+		setBorder(new EmptyBorder(30,30,30,30));;
+		gridPanel.setOpaque(true);
 		setPreferredSize(new Dimension(WIDTH,LENGTH));
 		List<List<Integer>> board=gameInfo.board();
 		int padding=5;
-		int rows=board.size();
-		int cols=board.get(0).size();
-		grid.setMaximumSize(new Dimension(BWIDTH,BLENGTH));
-		grid.setBorder(new EmptyBorder(30,30,30,30));
-		grid.setLayout(new GridLayout(rows+1,cols));
-		addCategories(grid);
-		questions=new JButton[rows][cols];
+
+		gridPanel.setMaximumSize(new Dimension(BWIDTH,BLENGTH));
+		gridPanel.setBorder(new EmptyBorder(30,30,30,30));
+		gridPanel.setLayout(new GridLayout(rows+1,cols));
+		addCategories(gridPanel);
 		for (int row=0;row<rows;row++){
 			for(int col=0;col<cols;col++){
 				int val= board.get(row).get(col);
 				JPanel pad=new JPanel();
 				pad.setOpaque(false);
 				pad.setBorder(new EmptyBorder(10,10,10,10));
-				JButton q=new JButton();
-		
+				JButton q=questions[row][col];
 				q.setOpaque(true);
-				q.addActionListener(new ChooseQuestion(row,col,q,j));
+
 				pad.add(q);
 				q.setPreferredSize(new Dimension(50,50));
-				grid.add(pad);
+				gridPanel.add(pad);
 				q.setText(Integer.toString(val));
 			
 
 			}
 		}
-		return grid;
+
+	}
+
+	private void initBoardQuestions(int rows,int cols) {
+		List<List<Integer>> board = gameInfo.board();
+		questions=new JButton[rows][cols];
+		for (int row=0;row<rows;row++){
+			for(int col=0;col<cols;col++){
+				JButton q=new JButton();	
+				questions[row][col]=q;
+				q.addActionListener(new ChooseQuestion(row,col,q,j));
+			
+
+			}
+		}
+		
+		
 	}
 
 	private void addCategories(JPanel grid) {
@@ -130,14 +154,17 @@ public class JeopardyPanel extends JPanel implements GameChangeListener{
 	@Override
 	public void selectQuestion(Question q,int row,int col) {
 		System.out.println("Selecting question: "+q.question());
+		questions[row][col].setEnabled(false);
 	    gridPanel.removeAll();
-
-        gridPanel.setLayout(new GridLayout(5,1));
+	    gridPanel.add(new JLabel("Click Buzz when you know the answer"));
+        gridPanel.setLayout(new GridLayout(7,1));
         JLabel question=new JLabel(q.question());
         gridPanel.add(question);
+        gridPanel.add(buzzer);
         gridPanel.add(new JLabel("Select one of the options below"));
         for(int i=0;i<q.options().size();i++){
         	JButton option=new JButton();
+        	option.addActionListener(new ChooseAnswer(i,j));
         	option.setText(q.options().get(i));
         	gridPanel.add(option);
         }
@@ -145,6 +172,24 @@ public class JeopardyPanel extends JPanel implements GameChangeListener{
         gridPanel.repaint();
         
 		
+	}
+
+	@Override
+	public void buzzedIn(int playerID) {
+		buzzer.setText("Player: "+ Integer.toString(playerID)+" Buzzed");
+		buzzer.setEnabled(false);
+		
+		
+	}
+
+	@Override
+	public void answeredQuestion(int playerID, int score) {
+	    gridPanel.removeAll();
+	    createGrid();
+        gridPanel.validate();
+        gridPanel.repaint();
+        buzzer.setEnabled(true);
+        buzzer.setText("Buzz");
 	}
 
 }

@@ -26,6 +26,7 @@ public class Jeopardy {
 	private OutputStream out; 
 	private ArrayList<Question> questions;
 	private GameChangeListener listener;
+	private Question currentQ;
 	private final int rows,cols;
 	public Jeopardy(String hostport) throws FileNotFoundException{
 		this.hostport=hostport;
@@ -64,13 +65,13 @@ public class Jeopardy {
 	}
 	public void chooseQuestion(int row, int col) throws IOException {
 		QuestionArgs qa=new QuestionArgs(playerID,gameID,row,col);
-		System.out.println(gson.toJson(qa)+"SIZE: "+gson.toJson(qa).length());
+		System.out.println("Choosing Question");
 		out.write(makeJson("Question",gson.toJson(qa)).getBytes());
 	}
-	public void buzz(){
+	public void buzz() throws IOException{
 		turn++;
-	}
-	public void answerQuestion(){
+		BuzzArgs buzz=new BuzzArgs(gameID,playerID,turn);
+		out.write(makeJson("Buzz",gson.toJson(buzz)).getBytes());
 	}
 
 	public void joinGame() throws IOException{
@@ -87,14 +88,18 @@ public class Jeopardy {
 		//gson.fromJson(json, JoinRep.class);
 	}
 	public synchronized void buzzed(String json){
-		
+		System.out.println("Buzzed "+json);
+		BuzzArgs b=gson.fromJson(json, BuzzArgs.class);
+		System.out.println(json);
+		listener.buzzedIn(b.playerID());
 	}
 	public synchronized void answered(String json){
+		AnswerArgs a=gson.fromJson(json, AnswerArgs.class);
+		System.out.println("Question value: "+Integer.toString(a.scoreChange()));
+		listener.answeredQuestion(a.playerID(), a.scoreChange());
 		
 	}
-	public synchronized void gameStarting(String json){
-		
-	}
+
 	private int qIndex(int row,int col){
 		return (rows*row+col);
 	}
@@ -104,7 +109,17 @@ public class Jeopardy {
 		System.out.println("row: "+Integer.toString(q.row())+"col: ");
 		int r=q.row();
 		int c=q.col();
-		listener.selectQuestion(questions.get(qIndex(r,c)), r, c);
+		currentQ=questions.get(qIndex(r,c));
+		listener.selectQuestion(currentQ, r, c);
+		
+	}
+	public void chooseAnswer(int choice) throws IOException {
+		int scoreChange=currentQ.value();
+		if(currentQ.answer()!=choice){
+			scoreChange=-1;
+		}
+		AnswerArgs a=new AnswerArgs(gameID,playerID,scoreChange);
+		out.write(makeJson("Answer",gson.toJson(a)).getBytes());
 		
 	}
 	
