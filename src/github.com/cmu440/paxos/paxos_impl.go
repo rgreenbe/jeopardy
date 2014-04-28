@@ -96,9 +96,9 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 }
 
 func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error {
-	//if p.nodeID == 2 && (*args).Sequence.Round < 50 {
-	//	return nil
-	//}
+	if p.nodeID == 2 && (*args).Sequence.Round < 50 {
+		return nil
+	}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 	roundNum := (*args).Sequence.Round
@@ -122,9 +122,9 @@ func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareR
 }
 
 func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error {
-	//if p.nodeID == 2 && (*args).Accept.Sequence.Round < 50 {
-	//	return nil
-	//}
+	if p.nodeID == 2 && (*args).Accept.Sequence.Round < 50 {
+		return nil
+	}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 	roundNum := (*args).Accept.Sequence.Round
@@ -146,9 +146,9 @@ func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptRepl
 }
 
 func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitReply) error {
-	//if p.nodeID == 2 && (*args).Committed.Sequence.Round < 50 {
-	//	return nil
-	//}
+	if p.nodeID == 2 && (*args).Committed.Sequence.Round < 50 {
+		return nil
+	}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 	if p.highestSequence == nil || p.compare(p.highestSequence, (*args).Committed.Sequence) == LESS {
@@ -371,18 +371,20 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence, ownValue bool) {
 	for _, connection := range p.connections {
 		go p.rpcCommit(connection, args)
 	}
+	p.listLock.Lock()
 	if ownValue {
-		p.listLock.Lock()
 		p.proposalList.Remove(p.proposalList.Front())
-		p.listLock.Unlock()
-	} else {
+	} else if p.proposalList.Len() > 0 {
 		p.startPrepare <- struct{}{}
 	}
+	p.listLock.Unlock()
 	p.dataLock.Lock()
 	if p.contestedRound == (*commit).Sequence.Round {
 		p.learner.RecvCommit([]byte(string((*args).Committed.Value) + " proposer" + strconv.FormatUint(p.nodeID, 10) + " round " + strconv.FormatUint((*args).Committed.Sequence.Round, 10)))
 		p.commits[(*commit).Sequence.Round] = &Round{(*commit).Sequence, commit, true}
 		p.contestedRound++
+		p.noopRound++
+		p.catchup()
 	}
 	p.dataLock.Unlock()
 }
