@@ -6,6 +6,7 @@ const (
 	OK Status = iota + 1
 	CANCEL
 	NOT_READY
+	QUIESCE
 )
 
 type PrepareArgs struct {
@@ -57,8 +58,9 @@ type ProposeArgs struct {
 type ProposeReply struct {
 	Status Status
 }
+
 type ReplaceNodeArgs struct {
-	Update  bool
+	Update  Node //The node that should push updates to the NewNode
 	OldNode Node
 	NewNode Node
 }
@@ -67,7 +69,16 @@ type ReplaceNodeReply struct {
 }
 
 type QuiesceArgs struct {
+	Update  Node //The node that should push updates to the NewNode
+	OldNode Node
+	NewNode Node
 }
 
 type QuiesceReply struct {
+}
+
+type ResumeArgs struct {
+}
+
+type ResumeReply struct {
 }

@@ -20,4 +20,6 @@ type Paxos interface {
 	Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply) error
 
 	Quiesce(args *paxosrpc.QuiesceArgs, reply *paxosrpc.QuiesceReply) error
+
+	Resume(args *paxosrpc.ResumeArgs, reply *paxosrpc.ResumeReply) error
 }

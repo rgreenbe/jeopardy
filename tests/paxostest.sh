@@ -48,7 +48,6 @@ function startPaxosServers {
         done
     fi
     sleep 2
-    ${PAXOS_TEST} -master="localhost:${PAXOS_PORT}" -nodes=${N} &> output.txt &
 }
 
 function stopPaxosServers {
@@ -60,17 +59,54 @@ function stopPaxosServers {
     done
 }
 
+function startPaxosTest {
+    ${PAXOS_TEST} -master="localhost:${PAXOS_PORT}" -nodes=${N} &> output.txt &
+}
 
-# Testing single client, single tribserver, multiple storageserver.
+function startPaxosTestDeadNode {
+    ${PAXOS_TEST} -master="localhost:${PAXOS_PORT}" -nodes=${N} -type="dead" &> output.txt &
+}
+
+function startPaxosTestReplaceNode {
+    ${PAXOS_TEST} -master="localhost:${PAXOS_PORT}" -nodes=${N} -type="replace" &> output.txt &
+}
+
+# Test with three nodes
 function startTestThreeNodes {
-    echo "Running testPaxosBasic:"
+    echo "Running paxostest with all nodes:"
     PAXOS_ID=('0' '1' '2')
     TIMEOUT=15
     startPaxosServers
+    startPaxosTest
+    sleep 5
+    stopPaxosServers
+}
+
+# Test with three nodes but one dies before paxos starts..this should run to completion
+function startTestOneDeadNode {
+    echo "Running paxostest with one dead node:"
+    PAXOS_ID=('0' '1' '2')
+    TIMEOUT=15
+    startPaxosServers
+    kill -9 ${PAXOS_SERVER_PID[2]}
+    startPaxosTestDeadNode
+    sleep 5
+    stopPaxosServers
+}
+
+function startTestReplaceNode {
+    echo "Running paxostest with dead node to be replaced:"
+    PAXOS_ID=('0' '1' '2')
+    TIMEOUT=15
+    startPaxosServers
+    kill -9 ${PAXOS_SERVER_PID[2]}
+    startPaxosTestReplaceNode
     sleep 5
     stopPaxosServers
 }
 
 startTestThreeNodes
+startTestOneDeadNode
+startTestReplaceNode
 
 
