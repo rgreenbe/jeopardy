@@ -252,7 +252,7 @@ func (p *paxos) Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply
 	if proposal != nil {
 		p.proposalList.PushBack(*proposal)
 	} else {
-		p.proposalList.PushFront(nil)
+		//p.proposalList.PushFront(nil)
 	}
 	p.listLock.Unlock()
 	p.startPrepare <- struct{}{}
@@ -310,15 +310,18 @@ func (p *paxos) sendPrepare() {
 			if (p.numNodes / 2) < ok {
 				if oldestPrepare == nil {
 					p.listLock.Lock()
-					value, ok := p.proposalList.Front().Value.([]byte)
-					p.listLock.Unlock()
-					if !ok {
-						value = nil
+					var value []byte
+					front := p.proposalList.Front()
+					if front != nil {
+						value = front.Value.([]byte)
+					} else {
+						return
 					}
-					p.sendAccept(&paxosrpc.ValueSequence{value, sequence})
+					p.listLock.Unlock()
+					p.sendAccept(&paxosrpc.ValueSequence{value, sequence}, true)
 				} else {
 					(*oldestPrepare).Sequence = sequence
-					p.sendAccept(oldestPrepare)
+					p.sendAccept(oldestPrepare, false)
 				}
 				return
 			}
@@ -333,7 +336,7 @@ func (p *paxos) sendPrepare() {
 	}
 }
 
-func (p *paxos) sendAccept(accept *paxosrpc.ValueSequence) {
+func (p *paxos) sendAccept(accept *paxosrpc.ValueSequence, ownValue bool) {
 	p.dataLock.Lock()
 	args := &paxosrpc.AcceptArgs{accept}
 	replyChan := make(chan paxosrpc.Status, p.numNodes-1)
@@ -349,7 +352,7 @@ func (p *paxos) sendAccept(accept *paxosrpc.ValueSequence) {
 		if reply == paxosrpc.OK {
 			ok++
 			if (p.numNodes / 2) < ok {
-				p.sendCommit(accept)
+				p.sendCommit(accept, ownValue)
 				return
 			}
 		} else {
@@ -363,23 +366,24 @@ func (p *paxos) sendAccept(accept *paxosrpc.ValueSequence) {
 	}
 }
 
-func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence) {
+func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence, ownValue bool) {
 	args := &paxosrpc.CommitArgs{commit}
 	for _, connection := range p.connections {
 		go p.rpcCommit(connection, args)
 	}
-	p.dataLock.Lock()
-	defer p.dataLock.Unlock()
-	if p.contestedRound == (*commit).Sequence.Round {
-		p.learner.RecvCommit([]byte(string((*args).Committed.Value) + " " + strconv.FormatUint(p.contestedRound, 10) + " proposer" + strconv.FormatUint(p.nodeID, 10) + strconv.FormatUint((*args).Committed.Sequence.Round, 10)))
+	if ownValue {
 		p.listLock.Lock()
 		p.proposalList.Remove(p.proposalList.Front())
 		p.listLock.Unlock()
+	}
+	p.dataLock.Lock()
+	if p.contestedRound == (*commit).Sequence.Round {
+		p.learner.RecvCommit([]byte(string((*args).Committed.Value) + " proposer" + strconv.FormatUint(p.nodeID, 10) + " round " + strconv.FormatUint((*args).Committed.Sequence.Round, 10)))
 		p.commits[(*commit).Sequence.Round] = &Round{(*commit).Sequence, commit, true}
 		p.contestedRound++
-	} else {
-		p.startPrepare <- struct{}{} //This slot is already committed, try again
 	}
+	p.dataLock.Unlock()
+	p.startPrepare <- struct{}{} //This slot is already committed, try again
 }
 
 func (p *paxos) catchup() {
