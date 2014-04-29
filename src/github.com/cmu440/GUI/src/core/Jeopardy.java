@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -17,7 +18,7 @@ import com.google.gson.Gson;
 
 public class Jeopardy {
 	private ArrayList<Integer> players;
-	private int playerID;
+	private int playerID,currentPlayer;
 	private int gameID;
 	private Gson gson;
 	private GameInfo gameInfo;
@@ -28,15 +29,25 @@ public class Jeopardy {
 	private ArrayList<Question> questions;
 	private GameChangeListener listener;
 	private Question currentQ;
+	private Boolean[][] selectedQuestions;
 	private final int rows,cols;
 	public Jeopardy(String hostport, int random) throws FileNotFoundException{
+		currentPlayer=1;
 		this.hostport=hostport;
 		this.gameID=0;
 		this.playerID=0;
-		rows=5;
-		cols=4;
+		rows=4;
+		cols=5;
 		players=new ArrayList<Integer>();
 		players.add(0);
+		players.add(0);
+		players.add(0);
+		selectedQuestions=new Boolean[rows][cols];
+		for(int row=0;row<rows;row++){
+			for(int col=0;col<cols;col++){
+				selectedQuestions[row][col]=false;
+			}
+		}
 		this.questions=(new Questions()).questions();
 		try {
 			s = new Socket("localhost",8080);
@@ -59,7 +70,7 @@ public class Jeopardy {
 		this.gameInfo=gson.fromJson(json,GameInfo.class);
 	}
 	private String makeJson(String command,String jsonObject){
-		return ("{\""+command+"\":"+jsonObject+"}\n");
+		return ("{\""+command+"\":"+jsonObject+"}");
 			
 	}
 	public GameInfo Info(){
@@ -87,7 +98,10 @@ public class Jeopardy {
 	}
 	public synchronized void joined(String json){
 		System.out.println(json);
-		//gson.fromJson(json, JoinRep.class);
+		JoinRep newGame=gson.fromJson(json, JoinRep.class);
+		this.gameID=newGame.GameID();
+		this.playerID=newGame.PlayerID();
+		listener.startGame();
 	}
 	public synchronized void buzzed(String json){
 		System.out.println("Buzzed "+json);
@@ -99,6 +113,9 @@ public class Jeopardy {
 		AnswerArgs a=gson.fromJson(json, AnswerArgs.class);
 		System.out.println("Question value: "+Integer.toString(a.scoreChange()));
 		int score=players.get(a.playerID());
+		if (a.scoreChange()>0){
+			currentPlayer=a.playerID();
+		}
 		score+=a.scoreChange();
 		players.add(a.playerID(),score);
 		listener.answeredQuestion(a.playerID(), score,a.choice());
@@ -114,6 +131,7 @@ public class Jeopardy {
 		System.out.println("row: "+Integer.toString(q.row())+"col: ");
 		int r=q.row();
 		int c=q.col();
+		selectedQuestions[r][c]=true;
 		currentQ=questions.get(qIndex(r,c));
 		listener.selectQuestion(currentQ, r, c);
 		
@@ -138,6 +156,12 @@ public class Jeopardy {
 	}
 	public Question currentQuestion(){
 		return currentQ;
+	}
+	public Boolean[][] SelectedQuestions(){
+		return selectedQuestions;
+	}
+	public int currentPlayer(){
+		return currentPlayer;
 	}
 	
 }

@@ -25,8 +25,8 @@ public class NetworkListener implements Runnable {
 
 	private String jsonString(String command, String json) {
 		String withoutCommand = (json.replace(command, ""));
-		withoutCommand = withoutCommand.replace("}\n", "");
-		return withoutCommand.trim().replaceAll("\0", "");
+		withoutCommand = withoutCommand.replace("\0", "");
+		return withoutCommand.substring(0,withoutCommand.length()-1);
 	}
 
 	@Override
@@ -44,9 +44,11 @@ public class NetworkListener implements Runnable {
 				try {
 					in.read(buf);
 					String msg = new String(buf, "UTF-8");
+					System.out.println(msg);
 					if (msg.startsWith(join)) {
 						j.joined(jsonString(join, msg));
 					} else if (msg.startsWith(buzz)) {
+						System.out.println("Received buzz from network");
 						j.buzzed(jsonString(buzz, msg));
 					} else if (msg.startsWith(answer)) {
 						j.answered(jsonString(answer, msg));
