@@ -29,7 +29,7 @@ public class Jeopardy {
 	private GameChangeListener listener;
 	private Question currentQ;
 	private final int rows,cols;
-	public Jeopardy(String hostport) throws FileNotFoundException{
+	public Jeopardy(String hostport, int random) throws FileNotFoundException{
 		this.hostport=hostport;
 		this.gameID=0;
 		this.playerID=0;
@@ -41,7 +41,7 @@ public class Jeopardy {
 		try {
 			s = new Socket("localhost",8080);
 			out = s.getOutputStream();
-			ServerSocket readSocket = new ServerSocket(9090);
+			ServerSocket readSocket = new ServerSocket(random);
 			(new Thread(new NetworkListener(readSocket,this))).start();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();

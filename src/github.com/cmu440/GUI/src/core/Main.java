@@ -1,6 +1,7 @@
 package core;
 
 import java.io.FileNotFoundException;
+import java.util.Random;
 
 import gui.JeopardyPanel;
 
@@ -27,8 +28,9 @@ public class Main {
 	        // Create and set-up the window.
 	        JFrame frame = new JFrame(NAME);
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-	        Jeopardy game = new Jeopardy("localhost:9090");
+	        Random r=new Random();
+	        int random=10000+r.nextInt(10000);
+	        Jeopardy game = new Jeopardy("localhost:"+random,random);
 	        
 	        // Create and set up the content pane
 	        JeopardyPanel gamePanel = new JeopardyPanel(game);
