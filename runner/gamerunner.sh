@@ -69,7 +69,7 @@ function startGame {
     TIMEOUT=15
     startPaxosServers
     startClient
-    sleep 15
+    sleep 60
     stopPaxosServers
 }
 
