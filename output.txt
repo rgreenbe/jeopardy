@@ -36,13 +36,13 @@ encoding/gob.decodeUintReader(0x6957b0, 0xc210056420, 0xc210037b30, 0x9, 0x9, ..
 	/usr/local/go/src/pkg/encoding/gob/decode.go:66 +0x98
 encoding/gob.(*Decoder).recvMessage(0xc210073000, 0x0)
 	/usr/local/go/src/pkg/encoding/gob/decoder.go:73 +0x57
-encoding/gob.(*Decoder).decodeTypeSequence(0xc210073000, 0xc210061c00, 0x160)
+encoding/gob.(*Decoder).decodeTypeSequence(0xc210073000, 0xc210062c00, 0x160)
 	/usr/local/go/src/pkg/encoding/gob/decoder.go:159 +0x49
-encoding/gob.(*Decoder).DecodeValue(0xc210073000, 0x1e6a40, 0xc210061c00, 0x160, 0x0, ...)
+encoding/gob.(*Decoder).DecodeValue(0xc210073000, 0x1e6a40, 0xc210062c00, 0x160, 0x0, ...)
 	/usr/local/go/src/pkg/encoding/gob/decoder.go:223 +0x12e
-encoding/gob.(*Decoder).Decode(0xc210073000, 0x1e6a40, 0xc210061c00, 0x2881c0, 0xc200000000)
+encoding/gob.(*Decoder).Decode(0xc210073000, 0x1e6a40, 0xc210062c00, 0x2881c0, 0xc200000000)
 	/usr/local/go/src/pkg/encoding/gob/decoder.go:202 +0x1c5
-net/rpc.(*gobClientCodec).ReadResponseHeader(0xc210061b70, 0xc210061c00, 0xc210001120, 0xc210055ea0)
+net/rpc.(*gobClientCodec).ReadResponseHeader(0xc210062b70, 0xc210062c00, 0xc210001120, 0xc210061120)
 	/usr/local/go/src/pkg/net/rpc/client.go:221 +0x3f
 net/rpc.(*Client).input(0xc210056480)
 	/usr/local/go/src/pkg/net/rpc/client.go:107 +0xbf
@@ -4522,24 +4522,6 @@ created by github.com/cmu440/client.(*jeopardyClient).handleClients
 	/Users/rebeccagreenberg/jeopardy/src/github.com/cmu440/client/client_impl.go:20 +0xdb
 
 goroutine 750 [runnable]:
-github.com/cmu440/client.(*jeopardyClient).handleReads(0xc210000350, 0x0)
-	/Users/rebeccagreenberg/jeopardy/src/github.com/cmu440/client/client_impl.go:24
-created by github.com/cmu440/client.(*jeopardyClient).handleClients
-	/Users/rebeccagreenberg/jeopardy/src/github.com/cmu440/client/client_impl.go:20 +0xdb
-
-goroutine 751 [runnable]:
-github.com/cmu440/client.(*jeopardyClient).handleReads(0xc210000350, 0x0)
-	/Users/rebeccagreenberg/jeopardy/src/github.com/cmu440/client/client_impl.go:24
-created by github.com/cmu440/client.(*jeopardyClient).handleClients
-	/Users/rebeccagreenberg/jeopardy/src/github.com/cmu440/client/client_impl.go:20 +0xdb
-
-goroutine 752 [runnable]:
-github.com/cmu440/client.(*jeopardyClient).handleReads(0xc210000350, 0x0)
-	/Users/rebeccagreenberg/jeopardy/src/github.com/cmu440/client/client_impl.go:24
-created by github.com/cmu440/client.(*jeopardyClient).handleClients
-	/Users/rebeccagreenberg/jeopardy/src/github.com/cmu440/client/client_impl.go:20 +0xdb
-
-goroutine 753 [runnable]:
 github.com/cmu440/client.(*jeopardyClient).handleReads(0xc210000350, 0x0)
 	/Users/rebeccagreenberg/jeopardy/src/github.com/cmu440/client/client_impl.go:24
 created by github.com/cmu440/client.(*jeopardyClient).handleClients

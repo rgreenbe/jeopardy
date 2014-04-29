@@ -235,10 +235,18 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 			result.setText("Wrong Answer");
 			playersWhoGuessed.add(playerID);
 			options[choice].setBackground(Color.RED);
+			buzzer.setText("Buzz");
 			if (MAXGUESSES > playersWhoGuessed.size()) {
 				buzzer.setEnabled(true);
+	
 				for (int i = 0; i < options.length; i++) {
-					options[i].setEnabled(false);
+					if(i!=choice&&!playersWhoGuessed.contains(j.playerID())){
+					options[i].setEnabled(true);
+					}
+					else{
+						options[i].setEnabled(false);
+					}
+				
 				}
 			} else {
 				playersWhoGuessed.removeAll(playersWhoGuessed);
