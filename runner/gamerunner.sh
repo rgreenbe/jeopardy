@@ -66,7 +66,7 @@ function startClient {
 
 function startGame {
     PAXOS_ID=('0' '1' '2')
-    TIMEOUT=15
+    TIMEOUT=190
     startPaxosServers
     startClient
     sleep 60

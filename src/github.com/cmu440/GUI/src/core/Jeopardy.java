@@ -26,6 +26,7 @@ public class Jeopardy {
 	private String hostport;
 	private Socket s;
 	private OutputStream out; 
+	private int lastAnswered;
 	private ArrayList<Question> questions;
 	private GameChangeListener listener;
 	private Question currentQ;
@@ -34,8 +35,6 @@ public class Jeopardy {
 	public Jeopardy(String hostport, int random) throws FileNotFoundException{
 		currentPlayer=1;
 		this.hostport=hostport;
-		this.gameID=0;
-		this.playerID=0;
 		rows=4;
 		cols=5;
 		players=new ArrayList<Integer>();
@@ -81,9 +80,10 @@ public class Jeopardy {
 		System.out.println("Choosing Question: "+Integer.toString(qIndex(row,col)));
 		out.write(makeJson("Question",gson.toJson(qa)).getBytes());
 	}
-	public void buzz() throws IOException{
+	public void buzz(int player) throws IOException{
 		turn++;
-		BuzzArgs buzz=new BuzzArgs(gameID,playerID,turn);
+		BuzzArgs buzz=new BuzzArgs(gameID,player,turn);
+		System.out.println("BUZZING with player : "+Integer.toString(player)+makeJson("Buzz",gson.toJson(buzz)));
 		out.write(makeJson("Buzz",gson.toJson(buzz)).getBytes());
 	}
 
@@ -107,6 +107,7 @@ public class Jeopardy {
 		System.out.println("Buzzed "+json);
 		BuzzArgs b=gson.fromJson(json, BuzzArgs.class);
 		System.out.println(json);
+		currentPlayer=b.playerID();
 		listener.buzzedIn(b.playerID());
 	}
 	public synchronized void answered(String json) throws InterruptedException{
@@ -133,6 +134,7 @@ public class Jeopardy {
 		int c=q.col();
 		selectedQuestions[r][c]=true;
 		currentQ=questions.get(qIndex(r,c));
+		lastAnswered=q.playerID();
 		listener.selectQuestion(currentQ, r, c);
 		
 	}

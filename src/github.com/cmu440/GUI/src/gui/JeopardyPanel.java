@@ -25,7 +25,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	private JButton[] options;
 	private ArrayList<JLabel> playerScores;
 	private GameInfo gameInfo;
-	private JButton buzzer;
+	private JButton buzzer,join;
 	private JLabel result;
 	private ArrayList<Integer> playersWhoGuessed;
 	private JPanel headPanel, footPanel, gridPanel, sidePanel;
@@ -65,8 +65,8 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		side.setOpaque(true);
 		side.setPreferredSize(new Dimension(200, LENGTH));
 		side.setLayout(new GridLayout(10, 1));
-		JButton join = new JButton();
-		join.addActionListener(new JoinListener(j));
+		join = new JButton();
+		join.addActionListener(new JoinListener(j,join));
 		join.setText("Join Game");
 		JPanel pad = new JPanel();
 		pad.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -284,7 +284,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	}
 
 	private void enableQuestions() {
-		System.out.println("current player is " + j.currentPlayer() + "and player ID "+gameInfo.playerID());
+		System.out.println("current player is " + j.currentPlayer() + "and player ID "+j.playerID());
 		Boolean[][] alreadyAnswered=j.SelectedQuestions();
 		for(int row=0;row<rows;row++){
 			for(int col=0;col<cols;col++){
