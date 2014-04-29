@@ -16,6 +16,7 @@ func NewStub() Backend {
 func (s *stub) RecvCommit(commitMessage []byte, master bool) error {
 	commit := string(commitMessage)
 	items := strings.Split(commit, ",")
+	//log.Println(commit)
 	hostPort := items[0]
 	message := items[1]
 	cAddr, err := net.ResolveUDPAddr("udp", ":0")
@@ -27,7 +28,6 @@ func (s *stub) RecvCommit(commitMessage []byte, master bool) error {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	//log.Println(commit)
 	_, err = conn.Write([]byte(message))
 	if err != nil {
 		log.Println(err)

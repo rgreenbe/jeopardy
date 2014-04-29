@@ -45,9 +45,10 @@ type paxos struct {
 	listLock        *sync.Mutex
 	dataLock        *sync.Mutex
 	quiesceLock     *sync.Mutex
+	debug           paxosrpc.Debug
 }
 
-func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, learner backend.Backend) (Paxos, error) {
+func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, learner backend.Backend, debug paxosrpc.Debug) (Paxos, error) {
 	var listener net.Listener
 	var err error
 	for {
@@ -58,7 +59,7 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 		time.Sleep(time.Millisecond * 200) //Retry in a bit
 	}
 	p := &paxos{false, nil, 0, 0, false, numNodes, nodeID, masterID, nil, list.New(), make(chan struct{}, 1000), nil,
-		make([]*rpc.Client, 0, numNodes-1), learner, make(map[uint64]*Round), new(sync.Mutex), new(sync.Mutex), new(sync.Mutex)}
+		make([]*rpc.Client, 0, numNodes-1), learner, make(map[uint64]*Round), new(sync.Mutex), new(sync.Mutex), new(sync.Mutex), debug}
 	for {
 		err = rpc.RegisterName("Paxos", paxosrpc.Wrap(p))
 		if err == nil {
@@ -97,9 +98,9 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 }
 
 func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error {
-	//if p.nodeID == 2 && (*args).Sequence.Round%2 == 1 {
-	//	return nil
-	//}
+	if p.simulateNetworkError((*args).Sequence.Round) {
+		return nil
+	}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 	roundNum := (*args).Sequence.Round
@@ -123,9 +124,9 @@ func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareR
 }
 
 func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error {
-	//if p.nodeID == 2 && (*args).Accept.Sequence.Round%2 == 1 {
-	//	return nil
-	//}
+	if p.simulateNetworkError((*args).Accept.Sequence.Round) {
+		return nil
+	}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 	roundNum := (*args).Accept.Sequence.Round
@@ -147,9 +148,9 @@ func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptRepl
 }
 
 func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitReply) error {
-	//if p.nodeID == 2 && (*args).Committed.Sequence.Round%2 == 1 {
-	//	return nil
-	//}
+	if p.simulateNetworkError((*args).Committed.Sequence.Round) {
+		return nil
+	}
 	p.dataLock.Lock()
 	defer p.dataLock.Unlock()
 	if p.highestSequence == nil || p.compare(p.highestSequence, (*args).Committed.Sequence) == LESS {
@@ -257,7 +258,9 @@ func (p *paxos) Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply
 	(*(reply)).Status = paxosrpc.OK
 	proposal := (*args).Proposal
 	p.listLock.Lock()
-	p.proposalList.PushBack(proposal)
+	if len(proposal) > 0 {
+		p.proposalList.PushBack(proposal)
+	}
 	p.listLock.Unlock()
 	p.startPrepare <- struct{}{}
 	return nil
@@ -532,4 +535,20 @@ func (p *paxos) connectToNodes() {
 		}
 	}
 	p.madeConnections = true
+}
+
+func (p *paxos) simulateNetworkError(round uint64) bool {
+	if p.debug == paxosrpc.NONE {
+		return false
+	} else if p.nodeID%2 == 0 {
+		return false //Even numbered nodes won't drop messages
+	}
+	p.dataLock.Lock()
+	defer p.dataLock.Unlock()
+	if p.debug == paxosrpc.DROPODD && round%2 == 1 {
+		return true
+	} else if p.debug == paxosrpc.DROPSTART && round < 50 {
+		return true
+	}
+	return false
 }

@@ -41,7 +41,7 @@ function startPaxosServers {
         for i in `seq 1 $((N - 1))`
         do
 	    PAXOS_SLAVE_PORT=$(((RANDOM % 10000) + 10000))
-            ${PAXOS_SERVER} -port=${PAXOS_SLAVE_PORT} -id=${PAXOS_ID[$i]} -N=${N} -master="localhost:${PAXOS_PORT}" &> output.txt &
+            ${PAXOS_SERVER} -port=${PAXOS_SLAVE_PORT} -id=${PAXOS_ID[$i]} -N=${N} -master="localhost:${PAXOS_PORT}" -debug=${DEBUG} &> output.txt &
             PAXOS_SERVER_PID[$i]=$!
         done
     fi
@@ -74,6 +74,31 @@ function startTestThreeNodes {
     echo "Running paxostest with all nodes:"
     PAXOS_ID=('0' '1' '2')
     TIMEOUT=15
+    DEBUG="none"
+    startPaxosServers
+    startPaxosTest
+    sleep 5
+    stopPaxosServers
+}
+
+# Test with three nodes
+function startTestDropStart {
+    echo "Running paxostest dropping first 50 messages on odd nodes:"
+    PAXOS_ID=('0' '1' '2')
+    TIMEOUT=15
+    DEBUG="dropstart"
+    startPaxosServers
+    startPaxosTest
+    sleep 5
+    stopPaxosServers
+}
+
+# Test with three nodes
+function startTestDropOdd {
+    echo "Running paxostest dropping odd command slot commits on odd nodes:"
+    PAXOS_ID=('0' '1' '2')
+    TIMEOUT=15
+    DEBUG="dropodd"
     startPaxosServers
     startPaxosTest
     sleep 5
@@ -106,5 +131,7 @@ function startTestReplaceNode {
 startTestThreeNodes
 startTestOneDeadNode
 startTestReplaceNode
+startTestDropStart
+startTestDropOdd
 
 

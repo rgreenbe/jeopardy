@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/cmu440/backend"
 	"github.com/cmu440/paxos"
+	"github.com/cmu440/rpc/paxosrpc"
 	"log"
 	"os"
 	"strconv"
@@ -18,6 +19,7 @@ var (
 	nodeID         = flag.Uint64("id", 0, "a 64-bit unsigned node ID to use for sequencing")
 	masterID       = flag.Uint64("masterID", 0, "a 64-bit unsigned node ID to use for sequencing")
 	testing        = flag.Bool("testing", true, "Determines what kind of backend to use")
+	debugArgs      = flag.String("debug", "none", "Provides information on whether or not wrappers should drop messages for testing")
 )
 
 func init() {
@@ -39,7 +41,15 @@ func main() {
 	} else {
 		paxosBackend, _ = backend.NewJeopardyServer()
 	}
-	_, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID, paxosBackend)
+	var debug paxosrpc.Debug
+	if *debugArgs == "none" {
+		debug = paxosrpc.NONE
+	} else if *debugArgs == "dropstart" {
+		debug = paxosrpc.DROPSTART
+	} else {
+		debug = paxosrpc.DROPODD
+	}
+	_, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID, paxosBackend, debug)
 	if err != nil {
 		log.Fatalln("Failed to create Paxos node:", err)
 	}

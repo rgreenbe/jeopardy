@@ -9,6 +9,14 @@ const (
 	QUIESCE
 )
 
+type Debug int
+
+const (
+	NONE Debug = iota + 1
+	DROPSTART
+	DROPODD
+)
+
 type PrepareArgs struct {
 	Sequence *Sequence
 }

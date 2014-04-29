@@ -141,7 +141,7 @@ func testPaxosReplaceNode() {
 	nodes := (*reply).Nodes
 	hostPort := "localhost:" + strconv.Itoa(10000+(rand.Int()%10000))
 	stub := backend.NewStub()
-	_, err := paxos.NewPaxos(nodes[0].HostPort, *numNodes, hostPort, uint64(*numNodes), 0, stub)
+	_, err := paxos.NewPaxos(nodes[0].HostPort, *numNodes, hostPort, uint64(*numNodes), 0, stub, paxosrpc.NONE)
 	if err != nil {
 		log.Println(err)
 	}
