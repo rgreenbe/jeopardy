@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -40,12 +41,11 @@ public class Jeopardy {
 		try {
 			s = new Socket("localhost",8080);
 			out = s.getOutputStream();
-			(new Thread(new NetworkListener(s,this))).start();
+			ServerSocket readSocket = new ServerSocket(9090);
+			(new Thread(new NetworkListener(readSocket,this))).start();
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		String json="{PlayerID:3,Test:[true,true],"

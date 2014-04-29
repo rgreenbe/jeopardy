@@ -27,9 +27,10 @@ func (j *jeopardyClient) handleReads(conn *net.TCPConn) {
 		n, err := conn.Read(data)
 		if err != nil {
 			log.Println(err)
+		} else {
+			args := &paxosrpc.ProposeArgs{data[:n]}
+			j.master.Call("Paxos.Propose", args, new(paxosrpc.ProposeReply))
 		}
-		args := &paxosrpc.ProposeArgs{data[:n]}
-		j.master.Call("Paxos.Propose", args, new(paxosrpc.ProposeReply))
 	}
 }
 

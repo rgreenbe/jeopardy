@@ -17,6 +17,7 @@ var (
 	numNodes       = flag.Int("N", 1, "the number of nodes in the ring (including the master)")
 	nodeID         = flag.Uint64("id", 0, "a 64-bit unsigned node ID to use for sequencing")
 	masterID       = flag.Uint64("masterID", 0, "a 64-bit unsigned node ID to use for sequencing")
+	testing        = flag.Bool("testing", true, "Determines what kind of backend to use")
 )
 
 func init() {
@@ -32,7 +33,13 @@ func main() {
 		*port = defaultMasterPort
 	}
 	// Create and start the paxos server
-	_, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID, backend.NewStub())
+	var paxosBackend backend.Backend
+	if *testing {
+		paxosBackend = backend.NewStub()
+	} else {
+		paxosBackend, _ = backend.NewJeopardyServer()
+	}
+	_, err := paxos.NewPaxos(*masterHostPort, *numNodes, "localhost:"+strconv.Itoa(*port), *nodeID, *masterID, paxosBackend)
 	if err != nil {
 		log.Fatalln("Failed to create Paxos node:", err)
 	}

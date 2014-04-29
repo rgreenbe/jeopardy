@@ -29,6 +29,7 @@ func NewJeopardyServer() (Backend, error) {
 }
 
 func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
+	log.Println("Got something")
 	var f interface{}
 	err := json.Unmarshal(commitMessage, &f)
 	if err != nil {
@@ -37,15 +38,24 @@ func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
 	m := f.(map[string]interface{})
 	for key, value := range m {
 		message := value.(map[string]interface{})
+		log.Println(key, value, message)
 		switch key {
 		case "Question":
-			j.handleQA(message, commitMessage)
+			if master {
+				j.handleQA(message, commitMessage)
+			}
+			break
 		case "Buzz":
-			j.handleBuzz(message, commitMessage)
+			j.handleBuzz(message, commitMessage, master)
+			break
 		case "Join":
-			j.handleJoin(message)
+			j.handleJoin(message, master)
+			break
 		case "Answer":
-			j.handleQA(message, commitMessage)
+			if master {
+				j.handleQA(message, commitMessage)
+			}
+			break
 		default:
 			log.Println("Not a supported message type")
 		}
@@ -65,7 +75,7 @@ func (j *jeopardy) handleQA(message map[string]interface{}, commitMessage []byte
 	j.echoAll(game.players, commitMessage)
 }
 
-func (j *jeopardy) handleBuzz(message map[string]interface{}, commitMessage []byte) {
+func (j *jeopardy) handleBuzz(message map[string]interface{}, commitMessage []byte, master bool) {
 	gameID, ok := message["gameID"].(int)
 	if !ok {
 		log.Println("Malformed input")
@@ -81,11 +91,13 @@ func (j *jeopardy) handleBuzz(message map[string]interface{}, commitMessage []by
 	_, ok = game.rounds[round]
 	if !ok {
 		game.rounds[round] = struct{}{}
-		j.echoAll(game.players, commitMessage)
+		if master {
+			j.echoAll(game.players, commitMessage)
+		}
 	}
 }
 
-func (j *jeopardy) handleJoin(message map[string]interface{}) {
+func (j *jeopardy) handleJoin(message map[string]interface{}, master bool) {
 	hostport := message["hostport"].(string)
 	if j.waiting == nil {
 		j.waiting = make([]player, 0, 3) //3 players per game
@@ -94,7 +106,9 @@ func (j *jeopardy) handleJoin(message map[string]interface{}) {
 	if len(j.waiting) == 3 {
 		newGame := game{j.waiting, make(map[int]struct{}), j.gameNumber}
 		j.games[j.gameNumber] = newGame
-		j.sendGame(newGame)
+		if master {
+			j.sendGame(newGame)
+		}
 		j.waiting = nil
 		j.gameNumber++
 	}
@@ -114,6 +128,9 @@ func (j *jeopardy) sendGame(newGame game) {
 		data := make(map[string]interface{})
 		data["JoinRep"] = reply
 		bytes, err := json.Marshal(data)
+		if err != nil {
+			log.Println(err)
+		}
 		n, err := connection.Write(bytes)
 		if len(bytes) != n {
 			log.Println("Failed to write the whole message")

@@ -35,7 +35,7 @@ PAXOS_TEST=$GOPATH/bin/paxostest
 function startPaxosServers {
     N=${#PAXOS_ID[@]}
     # Start master paxos server.
-    ${PAXOS_SERVER} -N=${N} -id=${PAXOS_ID[0]} -port=${PAXOS_PORT} &> output.txt &
+    ${PAXOS_SERVER} -N=${N} -id=${PAXOS_ID[0]} -port=${PAXOS_PORT} -testing=false &> output.txt &
     PAXOS_SERVER_PID[0]=$!
     # Start slave paxos servers.
     if [ "$N" -gt 1 ]
@@ -43,7 +43,7 @@ function startPaxosServers {
         for i in `seq 1 $((N - 1))`
         do
 	    PAXOS_SLAVE_PORT=$(((RANDOM % 10000) + 10000))
-            ${PAXOS_SERVER} -port=${PAXOS_SLAVE_PORT} -id=${PAXOS_ID[$i]} -N=${N} -master="localhost:${PAXOS_PORT}" &> output.txt &
+            ${PAXOS_SERVER} -port=${PAXOS_SLAVE_PORT} -id=${PAXOS_ID[$i]} -N=${N} -master="localhost:${PAXOS_PORT}" -testing=false &> output.txt &
             PAXOS_SERVER_PID[$i]=$!
         done
     fi
@@ -69,7 +69,7 @@ function startGame {
     TIMEOUT=15
     startPaxosServers
     startClient
-    sleep 10
+    sleep 15
     stopPaxosServers
 }
 
