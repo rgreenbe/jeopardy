@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 public class Main {
-	  private static final String NAME = "Scrabble";
+	  private static final String NAME = "Jeopardy! 15440 Review";
 
 	    public static void main(String[] args) {
 	        SwingUtilities.invokeLater(new Runnable() {
