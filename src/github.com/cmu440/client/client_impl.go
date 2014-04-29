@@ -7,25 +7,7 @@ import (
 )
 
 type jeopardyClient struct {
-	client  *rpc.Client
-	readCH  chan string
-	writeCH chan string
-}
-
-func (*jeopardyClient) Start(port int) {
-	ln, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		// handle error
-	}
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			// handle error
-			continue
-		}
-
-		go j.handleConnection(conn)
-	}
+	master *rpc.Client
 }
 
 func (j *jeopardyClient) handleConnection(conn net.Conn) {
@@ -42,51 +24,36 @@ func (j *jeopardyClient) handleConnection(conn net.Conn) {
 
 }
 
-func main() {
-	ln, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		// handle error
-	}
+func (j *jeopardyClient) handleClients(l *net.Listener) {
 	for {
-		conn, err := ln.Accept()
+		conn, err := l.Accept()
 		if err != nil {
-			// handle error
-			continue
+			log.Println(err)
 		}
-
-		go handleConnection(conn)
+		go j.handleReads(conn)
 	}
 }
-func (j *jeopardyClient) read(conn net.Conn) {
-	reader := bufio.NewReader(conn)
+
+func (j *jeopardyClient) handleReads(conn *net.Client) {
+	data := make([]byte, 4096)
 	for {
-
-		buf, _ := reader.ReadBytes('\n')
-		fmt.Println("read")
-		j.readCH <- string(buf)
-
-	}
-
-}
-func (j *jeopardyClient) write(conn net.Conn) {
-	for msg := range j.writeCH {
-		conn.Write([]byte(msg))
+		n, err := conn.Read(data)
+		args := &paxosrpc.ProposeArgs{data[:n]}
+		master.Call("Paxos.Propose", args, new(paxosrpc.ProposeReply))
 	}
 }
 
 func NewJeopardyClient(serverHost string, serverPort int, clientPort int) (jeopardyClient, error) {
-	/*cli, err := rpc.DialHTTP("tcp", net.JoinHostPort(serverHost, strconv.Itoa(serverPort)))
+	j := jeopardyClient{nil}
+	master, err := rpc.DialHTTP("tcp", net.JoinHostPort(serverHost, strconv.Itoa(serverPort)))
+	j.master = master
 	if err != nil {
-		return nil, err
-	}*/
-	ln, err := net.Listen("tcp", ":"+strconv.Itoa(clientPort))
-	if err != nil {
-		// handle error
+		log.Println(err)
 	}
-	return &jeopardyClient{client: nil, readCH: make(chan string), writeCH: make(chan string)}, nil
+	client, err := net.Listen("tcp", ":"+strconv.Itoa(clientPort))
+	go j.handleClients(client)
+	if err != nil {
+		log.Println(err)
+	}
+	return jeopardyClient{master}, nil
 }
-
-/*func (jc *jeopardyClient) SendMessage(userMessage string) {
-	args := paxosrpc.Propose{[]byte(userMessage)}
-
-}*/

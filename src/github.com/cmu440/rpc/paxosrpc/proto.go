@@ -52,7 +52,7 @@ type GetMasterReply struct {
 }
 
 type ProposeArgs struct {
-	Proposal *[]byte
+	Proposal []byte
 }
 
 type ProposeReply struct {

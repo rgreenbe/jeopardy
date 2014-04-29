@@ -162,7 +162,7 @@ func (p *paxos) RecvCommit(args *paxosrpc.CommitArgs, reply *paxosrpc.CommitRepl
 		} else {
 			p.commits[(*args).Committed.Sequence.Round] = &Round{(*args).Committed.Sequence, (*args).Committed, true}
 		}
-		p.learner.RecvCommit((*args).Committed.Value)
+		p.learner.RecvCommit((*args).Committed.Value, false)
 		p.contestedRound++
 		p.noopRound = p.contestedRound
 		p.catchup()
@@ -257,9 +257,7 @@ func (p *paxos) Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply
 	(*(reply)).Status = paxosrpc.OK
 	proposal := (*args).Proposal
 	p.listLock.Lock()
-	if proposal != nil {
-		p.proposalList.PushBack(*proposal)
-	}
+	p.proposalList.PushBack(proposal)
 	p.listLock.Unlock()
 	p.startPrepare <- struct{}{}
 	return nil
@@ -451,7 +449,7 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence, ownValue bool) {
 	p.listLock.Unlock()
 	p.dataLock.Lock()
 	if p.contestedRound == (*commit).Sequence.Round {
-		p.learner.RecvCommit((*args).Committed.Value)
+		p.learner.RecvCommit((*args).Committed.Value, ownValue)
 		p.commits[(*commit).Sequence.Round] = &Round{(*commit).Sequence, commit, true}
 		p.contestedRound++
 		p.catchup()
@@ -464,7 +462,7 @@ func (p *paxos) catchup() {
 		round, ok := p.commits[p.contestedRound]
 		if ok && round.committed {
 			p.contestedRound++
-			p.learner.RecvCommit(round.previous.Value)
+			p.learner.RecvCommit(round.previous.Value, false)
 		} else {
 			return
 		}
