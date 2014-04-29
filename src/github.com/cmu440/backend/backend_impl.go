@@ -29,7 +29,6 @@ func NewJeopardyServer() (Backend, error) {
 }
 
 func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
-	log.Println("Got something")
 	var f interface{}
 	err := json.Unmarshal(commitMessage, &f)
 	if err != nil {
@@ -38,7 +37,6 @@ func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
 	m := f.(map[string]interface{})
 	for key, value := range m {
 		message := value.(map[string]interface{})
-		log.Println(key, value, message)
 		switch key {
 		case "Question":
 			if master {
@@ -64,10 +62,11 @@ func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
 }
 
 func (j *jeopardy) handleQA(message map[string]interface{}, commitMessage []byte) {
-	gameID, ok := message["gameID"].(int)
+	gameFloat, ok := message["gameID"].(float64)
 	if !ok {
 		log.Println("Malformed input")
 	}
+	gameID := int(gameFloat)
 	game, ok := j.games[gameID]
 	if !ok {
 		log.Println("Noexistent game")
@@ -76,21 +75,23 @@ func (j *jeopardy) handleQA(message map[string]interface{}, commitMessage []byte
 }
 
 func (j *jeopardy) handleBuzz(message map[string]interface{}, commitMessage []byte, master bool) {
-	gameID, ok := message["gameID"].(int)
+	gameFloat, ok := message["gameID"].(float64)
 	if !ok {
 		log.Println("Malformed input")
 	}
-	round, ok := message["turn"].(int)
+	gameID := int(gameFloat)
+	round, ok := message["turn"].(float64)
 	if !ok {
 		log.Println("Malformed input")
 	}
+	roundID := int(round)
 	game, ok := j.games[gameID]
 	if !ok {
 		log.Println("Noexistent game")
 	}
-	_, ok = game.rounds[round]
+	_, ok = game.rounds[roundID]
 	if !ok {
-		game.rounds[round] = struct{}{}
+		game.rounds[roundID] = struct{}{}
 		if master {
 			j.echoAll(game.players, commitMessage)
 		}
@@ -117,13 +118,14 @@ func (j *jeopardy) handleJoin(message map[string]interface{}, master bool) {
 func (j *jeopardy) sendGame(newGame game) {
 	reply := make(map[string]interface{})
 	reply["gameID"] = newGame.gameNum
-	for _, player := range newGame.players {
+	for index, player := range newGame.players {
 		addr, _ := net.ResolveTCPAddr("tcp", player.hostport)
 		connection, err := net.DialTCP("tcp", nil, addr)
 		if err != nil {
 			log.Println(err)
 		}
 		player.connection = connection
+		newGame.players[index] = player
 		reply["playerID"] = player.id
 		data := make(map[string]interface{})
 		data["JoinRep"] = reply
@@ -134,12 +136,22 @@ func (j *jeopardy) sendGame(newGame game) {
 		n, err := connection.Write(bytes)
 		if len(bytes) != n {
 			log.Println("Failed to write the whole message")
+		} else if err != nil {
+			log.Println(err)
 		}
 	}
 }
 
 func (j *jeopardy) echoAll(players []player, message []byte) {
 	for _, player := range players {
+		if player.connection == nil {
+			addr, _ := net.ResolveTCPAddr("tcp", player.hostport)
+			connection, err := net.DialTCP("tcp", nil, addr)
+			if err != nil {
+				log.Println(err)
+			}
+			player.connection = connection
+		}
 		n, err := player.connection.Write(message)
 		if err != nil {
 			log.Println(err)

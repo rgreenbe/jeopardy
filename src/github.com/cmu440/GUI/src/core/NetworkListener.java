@@ -47,9 +47,6 @@ public class NetworkListener implements Runnable {
 					if (msg.startsWith(join)) {
 						j.joined(jsonString(join, msg));
 					} else if (msg.startsWith(buzz)) {
-						System.out.println("MESSAGE: ");
-						System.out.println(msg);
-						System.out.println("DONE");
 						j.buzzed(jsonString(buzz, msg));
 					} else if (msg.startsWith(answer)) {
 						j.answered(jsonString(answer, msg));
