@@ -217,18 +217,23 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		gridPanel.repaint();
 		buzzer.setEnabled(true);
 		buzzer.setText("Buzz");
+		enableQuestions();
 
 	}
 
 	@Override
 	public void answeredQuestion(int playerID, int score, int choice)
 			throws InterruptedException {
+		
 		options[choice].setOpaque(true);
 		options[choice].setEnabled(false);
 		if (j.currentQuestion().answer() == choice) {
 			System.out.println("RIGHT");
 			result.setText("RIGHT ANSWER");
 			options[choice].setBackground(Color.GREEN);
+			for(int i=0;i<options.length;i++){
+				options[i].setEnabled(false);
+			}
 			resetGrid();
 			playersWhoGuessed.removeAll(playersWhoGuessed);
 		} else {
@@ -237,7 +242,9 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 			options[choice].setBackground(Color.RED);
 			buzzer.setText("Buzz");
 			if (MAXGUESSES > playersWhoGuessed.size()) {
-				buzzer.setEnabled(true);
+				if(!playersWhoGuessed.contains(playerID)){
+					buzzer.setEnabled(true);
+				}
 	
 				for (int i = 0; i < options.length; i++) {
 					if(i!=choice&&!playersWhoGuessed.contains(j.playerID())){
