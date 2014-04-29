@@ -14,14 +14,13 @@ else
     exit 1
 fi
 
-# Build the test binary to use to test the student's libstore implementation.
 # Exit immediately if there was a compile-time error.
-go install -race github.com/cmu440/tests/paxostest
+go install github.com/cmu440/runners/crunner
 if [ $? -ne 0 ]; then
    echo "FAIL: code does not compile"
    exit $?
 fi
-go install -race github.com/cmu440/runners
+go install github.com/cmu440/runners/prunner
 if [ $? -ne 0 ]; then
    echo "FAIL: code does not compile"
    exit $?
@@ -29,7 +28,8 @@ fi
 
 # Pick random port between [10000, 20000).
 PAXOS_PORT=$(((RANDOM % 10000) + 10000))
-PAXOS_SERVER=$GOPATH/bin/runners
+PAXOS_SERVER=$GOPATH/bin/prunner
+CLIENT=$GOPATH/bin/crunner
 PAXOS_TEST=$GOPATH/bin/paxostest
 
 function startPaxosServers {
@@ -51,10 +51,26 @@ function startPaxosServers {
 }
 
 function stopPaxosServers {
-    N=${#PAXOS_ID[@]}
+    N=${#PAXOS_SERVER_PID[@]}
     for i in `seq 0 $((N - 1))`
     do
         kill -9 ${PAXOS_SERVER_PID[$i]}
         wait ${PAXOS_SERVER_PID[$i]} 2> /dev/null
     done
 }
+
+function startClient {
+    $CLIENT -master="localhost:${PAXOS_PORT}" &> output.txt &
+    PAXOS_SERVER_PID[3]=$!
+}
+
+function startGame {
+    PAXOS_ID=('0' '1' '2')
+    TIMEOUT=15
+    startPaxosServers
+    startClient
+    sleep 10
+    stopPaxosServers
+}
+
+startGame

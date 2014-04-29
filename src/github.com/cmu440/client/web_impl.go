@@ -1,5 +1,6 @@
-package main
+package client
 
+/*
 import (
 	"bufio"
 	"fmt"
@@ -52,4 +53,4 @@ func write(conn net.Conn, out chan string) {
 	for msg := range out {
 		conn.Write([]byte(msg))
 	}
-}
+}*/

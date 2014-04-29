@@ -1,5 +1,11 @@
 package backend
 
+import (
+	"encoding/json"
+	"log"
+	"net"
+)
+
 type jeopardy struct {
 	gameNumber int
 	games      map[int]game
@@ -19,7 +25,7 @@ type player struct {
 }
 
 func NewJeopardyServer() (Backend, error) {
-	return jeopardy{0, new(map[int]struct{}), nil}
+	return &jeopardy{0, make(map[int]game), nil}, nil
 }
 
 func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
@@ -44,10 +50,11 @@ func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
 			log.Println("Not a supported message type")
 		}
 	}
+	return nil
 }
 
 func (j *jeopardy) handleQA(message map[string]interface{}, commitMessage []byte) {
-	gameID, ok := int(message["gameID"])
+	gameID, ok := message["gameID"].(int)
 	if !ok {
 		log.Println("Malformed input")
 	}
@@ -59,11 +66,11 @@ func (j *jeopardy) handleQA(message map[string]interface{}, commitMessage []byte
 }
 
 func (j *jeopardy) handleBuzz(message map[string]interface{}, commitMessage []byte) {
-	gameID, ok := int(message["gameID"])
+	gameID, ok := message["gameID"].(int)
 	if !ok {
 		log.Println("Malformed input")
 	}
-	round, ok := int(message["turn"])
+	round, ok := message["turn"].(int)
 	if !ok {
 		log.Println("Malformed input")
 	}
@@ -79,7 +86,7 @@ func (j *jeopardy) handleBuzz(message map[string]interface{}, commitMessage []by
 }
 
 func (j *jeopardy) handleJoin(message map[string]interface{}) {
-	hostport := string(message["hostport"])
+	hostport := message["hostport"].(string)
 	if j.waiting == nil {
 		j.waiting = make([]player, 0, 3) //3 players per game
 	}
@@ -97,7 +104,8 @@ func (j *jeopardy) sendGame(newGame game) {
 	reply := make(map[string]interface{})
 	reply["gameID"] = newGame.gameNum
 	for _, player := range newGame.players {
-		connection, err := net.DialTCP("tcp", nil, player.hostport)
+		addr, _ := net.ResolveTCPAddr("tcp", player.hostport)
+		connection, err := net.DialTCP("tcp", nil, addr)
 		if err != nil {
 			log.Println(err)
 		}

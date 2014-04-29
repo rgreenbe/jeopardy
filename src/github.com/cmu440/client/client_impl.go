@@ -1,32 +1,19 @@
 package client
 
 import (
-	"bufio"
-	"fmt"
+	"github.com/cmu440/rpc/paxosrpc"
+	"log"
 	"net"
+	"net/rpc"
 )
 
 type jeopardyClient struct {
 	master *rpc.Client
 }
 
-func (j *jeopardyClient) handleConnection(conn net.Conn) {
-	go read(conn, in)
-	go write(conn, out)
+func (j *jeopardyClient) handleClients(l *net.TCPListener) {
 	for {
-		select {
-		case msg := <-j.readCH:
-			fmt.Println("Message ", msg)
-			j.writeCH <- string(msg)
-
-		}
-	}
-
-}
-
-func (j *jeopardyClient) handleClients(l *net.Listener) {
-	for {
-		conn, err := l.Accept()
+		conn, err := l.AcceptTCP()
 		if err != nil {
 			log.Println(err)
 		}
@@ -34,23 +21,27 @@ func (j *jeopardyClient) handleClients(l *net.Listener) {
 	}
 }
 
-func (j *jeopardyClient) handleReads(conn *net.Client) {
+func (j *jeopardyClient) handleReads(conn *net.TCPConn) {
 	data := make([]byte, 4096)
 	for {
 		n, err := conn.Read(data)
+		if err != nil {
+			log.Println(err)
+		}
 		args := &paxosrpc.ProposeArgs{data[:n]}
-		master.Call("Paxos.Propose", args, new(paxosrpc.ProposeReply))
+		j.master.Call("Paxos.Propose", args, new(paxosrpc.ProposeReply))
 	}
 }
 
-func NewJeopardyClient(serverHost string, serverPort int, clientPort int) (jeopardyClient, error) {
+func NewJeopardyClient(serverHostPort, clientHostPort string) (jeopardyClient, error) {
 	j := jeopardyClient{nil}
-	master, err := rpc.DialHTTP("tcp", net.JoinHostPort(serverHost, strconv.Itoa(serverPort)))
+	master, err := rpc.DialHTTP("tcp", serverHostPort)
 	j.master = master
 	if err != nil {
 		log.Println(err)
 	}
-	client, err := net.Listen("tcp", ":"+strconv.Itoa(clientPort))
+	addr, _ := net.ResolveTCPAddr("tcp", clientHostPort)
+	client, err := net.ListenTCP("tcp", addr)
 	go j.handleClients(client)
 	if err != nil {
 		log.Println(err)

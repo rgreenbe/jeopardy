@@ -65,7 +65,7 @@ func (t *tester) sendAndListen(n int) {
 func (t *tester) send(n int, node *rpc.Client) {
 	for i := 0; i < n; i++ {
 		message := []byte(myHostPort + "," + strconv.Itoa(i))
-		err := node.Call("Paxos.Propose", &paxosrpc.ProposeArgs{&message}, new(paxosrpc.ProposeReply))
+		err := node.Call("Paxos.Propose", &paxosrpc.ProposeArgs{message}, new(paxosrpc.ProposeReply))
 		if err != nil {
 			log.Println(err)
 		}
