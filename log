@@ -1,8 +1,0 @@
-19:28:20.959563 prunner.go:56: Started 0
-19:28:20.961943 prunner.go:56: Started 1
-19:28:21.162529 prunner.go:56: Started 2
-19:28:22.962457 crunner.go:27: Started Jeopardy! client
-19:32:38.948681 prunner.go:56: Started 0
-19:32:38.952874 prunner.go:56: Started 2
-19:32:39.152091 prunner.go:56: Started 1
-19:32:40.957950 crunner.go:27: Started Jeopardy! client
