@@ -1,0 +1,8 @@
+03:01:30.709583 prunner.go:56: Started 0
+03:01:30.716040 prunner.go:56: Started 2
+03:01:30.914312 prunner.go:56: Started 1
+03:01:32.716686 crunner.go:27: Started Jeopardy! client
+03:04:01.271178 prunner.go:56: Started 0
+03:04:01.276640 prunner.go:56: Started 2
+03:04:01.475409 prunner.go:56: Started 1
+03:04:03.282649 crunner.go:27: Started Jeopardy! client
