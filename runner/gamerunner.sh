@@ -30,7 +30,6 @@ fi
 PAXOS_PORT=$(((RANDOM % 10000) + 10000))
 PAXOS_SERVER=$GOPATH/bin/prunner
 CLIENT=$GOPATH/bin/crunner
-PAXOS_TEST=$GOPATH/bin/paxostest
 
 function startPaxosServers {
     N=${#PAXOS_ID[@]}
