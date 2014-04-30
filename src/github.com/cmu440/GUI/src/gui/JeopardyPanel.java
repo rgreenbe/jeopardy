@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -60,18 +62,21 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		gridPanel = new JPanel();
 		createGrid();
 		footPanel = createFootPanel();
+		footPanel.setOpaque(false);
 		sidePanel = createSidePanel();
 		game.addListener(this);
 		initGui();
 	}
 
 	private JPanel createSidePanel() {
+		Font f = new Font("Helvetica", Font.PLAIN, 25);
 		JPanel side = new JPanel();
 		side.setOpaque(true);
 		side.setPreferredSize(new Dimension(200, LENGTH));
 		side.setLayout(new GridLayout(10, 1));
 		join = new JButton();
 		join.addActionListener(new JoinListener(j, join));
+		join.setFont(f);
 		join.setText("Join Game");
 		JPanel pad = new JPanel();
 		pad.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -91,22 +96,27 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		int padding = 5;
 
 		gridPanel.setMaximumSize(new Dimension(BWIDTH, BLENGTH));
-		gridPanel.setBorder(new EmptyBorder(padding, padding, padding, padding));
+		gridPanel.setBorder(BorderFactory.createLineBorder(Color.black, 3));
 		gridPanel.setLayout(new GridLayout(rows + 1, cols));
+		Color jeopardyBlue = new Color(6, 12, 233);
+		// gridPanel.add(comp)
 		addCategories(gridPanel);
+		Font f = new Font("Helvetica", Font.PLAIN, 25);
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
 				int val = board.get(row).get(col);
 				JPanel pad = new JPanel();
-				pad.setOpaque(false);
-				pad.setBorder(new EmptyBorder(padding,padding, padding,padding));
+				pad.setBorder(BorderFactory.createLineBorder(Color.black, 3));
+				pad.setBackground(jeopardyBlue);
 				JButton q = questions[row][col];
-				q.setOpaque(true);
+				q.setOpaque(false);
+				q.setForeground(Color.blue);
 				q.setEnabled(false);
 				pad.add(q);
-				q.setPreferredSize(new Dimension(80, 80));
+				q.setPreferredSize(new Dimension(100, 100));
 				gridPanel.add(pad);
 				q.setText(Integer.toString(val));
+				q.setFont(f);
 
 			}
 		}
@@ -128,14 +138,22 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	}
 
 	private void addCategories(JPanel grid) {
+		Color jeopardyBlue = new Color(6, 12, 233);
+		Font f = new Font("Helvetica", Font.BOLD, 25);
 		List<String> categories = gameInfo.Categories();
 		for (int i = 0; i < categories.size(); i++) {
 			JLabel category = new JLabel(categories.get(i), JLabel.CENTER);
+			category.setBackground(jeopardyBlue);
+			category.setForeground(Color.white);
+			category.setOpaque(true);
+			category.setBorder(BorderFactory.createLineBorder(Color.black, 3));
+			category.setFont(f);
 			grid.add(category);
 		}
 	}
 
 	private void initGui() {
+		Color jeopardyBlue = new Color(6, 12, 233);
 		setLayout(new BorderLayout());
 		Color darkCyan = new Color(10, 135, 171);
 		setPreferredSize(new Dimension(WIDTH, LENGTH));
@@ -144,7 +162,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		add(gridPanel, BorderLayout.CENTER);
 		add(sidePanel, BorderLayout.EAST);
 		add(footPanel, BorderLayout.SOUTH);
-		setBackground(darkCyan);
+		setBackground(jeopardyBlue);
 		setOpaque(true);
 
 	}
@@ -155,16 +173,20 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 				"Copyright © 2014 Gode Greenberg 15-440 Jeopardy!",
 				JLabel.CENTER);
 		panel.add(copyright);
+		copyright.setForeground(Color.white);
 		return panel;
 	}
 
 	private JPanel createHeadPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-
-		JLabel copyright = new JLabel(
-				"Welcome To Jeopardy! Review for the 15440 Final");
-		panel.add(copyright, BorderLayout.NORTH);
+		Font f = new Font("Helvetica", Font.BOLD, 25);
+		JLabel header = new JLabel(
+				"Jeopardy! 15440 Review",JLabel.CENTER);
+		header.setFont(f);
+		header.setForeground(Color.white);
+		panel.add(header, BorderLayout.NORTH);
+		panel.setOpaque(false);
 		return panel;
 	}
 
@@ -272,40 +294,40 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 
 	@Override
 	public void startGame() {
-		//sidePanel.setPreferredSize(new Dimension(800,800));
-		
-		sidePanel.setLayout(new GridLayout(5,1));
+		// sidePanel.setPreferredSize(new Dimension(800,800));
+
+		sidePanel.setLayout(new GridLayout(4, 1));
 		System.out.println("adding players ");
 		for (int i = 0; i < j.players().size(); i++) {
-	        BufferedImage image;
-	        try{
-	        	image=ImageIO.read(new File("assets/gopher_player1.png"));
-	        	image.getScaledInstance(image.getWidth(), image.getHeight(), 1);
-	        	JLabel playerIcon=new JLabel(new ImageIcon(image));
-		        
+			BufferedImage image;
+			try {
+				image = ImageIO.read(new File("assets/gopher_player"
+						+ Integer.toString(i + 1) + ".png"));
+				image.getScaledInstance(image.getWidth(), image.getHeight(), 1);
+				JLabel playerIcon = new JLabel(new ImageIcon(image));
 
-	       playerIcon.setPreferredSize(new Dimension(80,80));
-	    
-			JPanel pbox = new JPanel();
-			pbox.setOpaque(true);
-			pbox.setLayout(new GridLayout(4, 1));
-			pbox.add(new JLabel("Player: " + Integer.toString(i)));
-			pbox.add(playerIcon);
-			JLabel score = new JLabel("Score: 0");
-			pbox.add(score);
-			playerScores.add(score);
+				playerIcon.setPreferredSize(new Dimension(80, 80));
 
-			if (i == j.playerID()) {
-				pbox.add(new JLabel("Your Player"));
-			} else {
-				pbox.add(new JLabel("Opponent"));
+				JPanel pbox = new JPanel();
+				pbox.setOpaque(true);
+				pbox.setLayout(new GridLayout(4, 1));
+				pbox.add(new JLabel("Player: " + Integer.toString(i)));
+				pbox.add(playerIcon);
+				JLabel score = new JLabel("Score: 0");
+				pbox.add(score);
+				playerScores.add(score);
+
+				if (i == j.playerID()) {
+					pbox.add(new JLabel("Your Player"));
+				} else {
+					pbox.add(new JLabel("Opponent"));
+				}
+				sidePanel.add(pbox);
+				sidePanel.validate();
+				sidePanel.repaint();
+			} catch (IOException ex) {
+
 			}
-			sidePanel.add(pbox);
-			sidePanel.validate();
-			sidePanel.repaint();
-	        } catch(IOException ex){	        	
-		        
-	        }
 		}
 		enableQuestions();
 
