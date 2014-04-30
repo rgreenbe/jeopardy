@@ -55,7 +55,6 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		buzzer.setBackground(Color.RED);
 		buzzer.setOpaque(true);
 		buzzer.addActionListener(new Buzzer(j));
-
 		gameInfo = game.Info();
 		headPanel = createHeadPanel();
 		initBoardQuestions(rows, cols);
@@ -94,12 +93,10 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		setPreferredSize(new Dimension(WIDTH, LENGTH));
 		List<List<Integer>> board = gameInfo.board();
 		int padding = 5;
-
 		gridPanel.setMaximumSize(new Dimension(BWIDTH, BLENGTH));
 		gridPanel.setBorder(BorderFactory.createLineBorder(Color.black, 3));
 		gridPanel.setLayout(new GridLayout(rows + 1, cols));
 		Color jeopardyBlue = new Color(6, 12, 233);
-		// gridPanel.add(comp)
 		addCategories(gridPanel);
 		Font f = new Font("Helvetica", Font.PLAIN, 25);
 		for (int row = 0; row < rows; row++) {
@@ -155,9 +152,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	private void initGui() {
 		Color jeopardyBlue = new Color(6, 12, 233);
 		setLayout(new BorderLayout());
-		Color darkCyan = new Color(10, 135, 171);
 		setPreferredSize(new Dimension(WIDTH, LENGTH));
-
 		add(headPanel, BorderLayout.NORTH);
 		add(gridPanel, BorderLayout.CENTER);
 		add(sidePanel, BorderLayout.EAST);
@@ -170,7 +165,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	private JPanel createFootPanel() {
 		JPanel panel = new JPanel();
 		JLabel copyright = new JLabel(
-				"Copyright © 2014 Gode Greenberg 15-440 Jeopardy!",
+				"Copyright ï¿½ 2014 Gode Greenberg 15-440 Jeopardy!",
 				JLabel.CENTER);
 		panel.add(copyright);
 		copyright.setForeground(Color.white);
@@ -181,8 +176,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		Font f = new Font("Helvetica", Font.BOLD, 25);
-		JLabel header = new JLabel(
-				"Jeopardy! 15440 Review",JLabel.CENTER);
+		JLabel header = new JLabel("Jeopardy! 15440 Review", JLabel.CENTER);
 		header.setFont(f);
 		header.setForeground(Color.white);
 		panel.add(header, BorderLayout.NORTH);
@@ -251,16 +245,18 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	@Override
 	public void answeredQuestion(int playerID, int score, int choice)
 			throws InterruptedException {
-
+		System.out.println("Score for player :"+playerID+" is "+score);
 		options[choice].setOpaque(true);
 		options[choice].setEnabled(false);
+
+		for (int i = 0; i < options.length; i++) {
+			options[i].setEnabled(false);
+
+		}
 		if (j.currentQuestion().answer() == choice) {
 			System.out.println("RIGHT");
 			result.setText("RIGHT ANSWER");
 			options[choice].setBackground(Color.GREEN);
-			for (int i = 0; i < options.length; i++) {
-				options[i].setEnabled(false);
-			}
 			resetGrid();
 			playersWhoGuessed.removeAll(playersWhoGuessed);
 		} else {
@@ -269,19 +265,10 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 			options[choice].setBackground(Color.RED);
 			buzzer.setText("Buzz");
 			if (MAXGUESSES > playersWhoGuessed.size()) {
-				if (!playersWhoGuessed.contains(playerID)) {
+				if (!playersWhoGuessed.contains(j.playerID())) {
 					buzzer.setEnabled(true);
 				}
 
-				for (int i = 0; i < options.length; i++) {
-					if (i != choice
-							&& !playersWhoGuessed.contains(j.playerID())) {
-						options[i].setEnabled(true);
-					} else {
-						options[i].setEnabled(false);
-					}
-
-				}
 			} else {
 				playersWhoGuessed.removeAll(playersWhoGuessed);
 				resetGrid();
@@ -294,9 +281,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 
 	@Override
 	public void startGame() {
-		// sidePanel.setPreferredSize(new Dimension(800,800));
-
-		sidePanel.setLayout(new GridLayout(4, 1));
+		sidePanel.setLayout(new GridLayout(5, 1));
 		System.out.println("adding players ");
 		for (int i = 0; i < j.players().size(); i++) {
 			BufferedImage image;

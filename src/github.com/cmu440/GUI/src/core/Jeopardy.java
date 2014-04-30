@@ -81,7 +81,7 @@ public class Jeopardy {
 		out.write(makeJson("Question",gson.toJson(qa)).getBytes());
 	}
 	public void buzz(int player) throws IOException{
-		turn++;
+
 		BuzzArgs buzz=new BuzzArgs(gameID,player,turn);
 		System.out.println("BUZZING with player : "+Integer.toString(player)+makeJson("Buzz",gson.toJson(buzz)));
 		out.write(makeJson("Buzz",gson.toJson(buzz)).getBytes());
@@ -104,6 +104,7 @@ public class Jeopardy {
 		listener.startGame();
 	}
 	public synchronized void buzzed(String json){
+		turn++;
 		System.out.println("Buzzed "+json);
 		BuzzArgs b=gson.fromJson(json, BuzzArgs.class);
 		System.out.println(json);
