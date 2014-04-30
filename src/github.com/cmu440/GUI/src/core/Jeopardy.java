@@ -121,7 +121,7 @@ public class Jeopardy {
 	}
 
 	private int qIndex(int row,int col){
-		return (rows*row+col);
+		return (cols*row+col);
 	}
 	public synchronized void selectedQuestion(String json){
 		System.out.println(json+ "SIZE: "+json.length());
@@ -161,6 +161,9 @@ public class Jeopardy {
 	}
 	public int currentPlayer(){
 		return currentPlayer;
+	}
+	public ArrayList<Question> questions(){
+		return questions;
 	}
 	
 }

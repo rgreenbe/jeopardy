@@ -112,7 +112,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 				pad.add(q);
 				q.setPreferredSize(new Dimension(100, 100));
 				gridPanel.add(pad);
-				q.setText(Integer.toString(val));
+				//q.setText(Integer.toString(val));
 				q.setFont(f);
 
 			}
@@ -122,11 +122,15 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 
 	private void initBoardQuestions(int rows, int cols) {
 		List<List<Integer>> board = gameInfo.board();
+		ArrayList<Question> qFromBoard = j.questions();
+		int index;
 		questions = new JButton[rows][cols];
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
 				JButton q = new JButton();
 				questions[row][col] = q;
+				index=row*cols+col;
+				q.setText(Integer.toString(qFromBoard.get(index).value()));
 				q.addActionListener(new ChooseQuestion(row, col, q, j));
 
 			}
