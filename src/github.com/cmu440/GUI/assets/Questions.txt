@@ -33,32 +33,32 @@ Options4:Who is @srini
 Options4:Who is @alockwoo
 Value4:200
 Answer4:0
-Question5:rgreenbe is the bestest person
-Options5:What is @rgtroublegirl
-Options5:What is @rgtroublegirl
-Options5:What is @rgtroublegirl
-Options5:What is @rgtroublegirl
+Question5:This person defined the properties that were later coined ACID
+Options5:Who is David Hasselhoff
+Options5:Who is Jim Gray
+Options5:Who is Andreas Reuter
+Options5:Who is Theo Härder
 Value5:400
-Answer5:0
-Question6:rgreenbe is the bestest person
-Options6:What is @rgtroublegirl
-Options6:What is @rgtroublegirl
-Options6:What is @rgtroublegirl
-Options6:What is @rgtroublegirl
+Answer5:1
+Question6:This person first developed the Paxos algorithm
+Options6:Who is Bill Gates
+Options6:Who is Leslie Lamport
+Options6:Who is Jesus Christ
+Options6:Who is Grace Hopper
 Value6:400
-Answer6:0
-Question7:rgreenbe is the bestest person
-Options7:What is @rgtroublegirl
-Options7:What is @rgtroublegirl
-Options7:What is @rgtroublegirl
-Options7:What is @rgtroublegirl
+Answer6:1
+Question7:RAID 0's main focus is this
+Options7:What is redundancy
+Options7:What is reliability
+Options7:What is speed
+Options7:What is durability
 Value7:400
-Answer7:0
-Question8:rgreenbe is the bestest person
-Options8:What is @rgtroublegirl
-Options8:What is @rgtroublegirl
-Options8:What is @rgtroublegirl
-Options8:What is @rgtroublegirl
+Answer7:2
+Question8:Lamport Clocks can be used for which of the following
+Options8:What is total ordering
+Options8:What is data redundancy
+Options8:What is good timekeeping
+Options8:What are wall decorations
 Value8:400
 Answer8:0
 Question9:rgreenbe is the bestest person
@@ -68,13 +68,13 @@ Options9:What is @rgtroublegirl
 Options9:What is @rgtroublegirl
 Value9:400
 Answer9:0
-Question10:rgreenbe is the bestest person
-Options10:What is @rgtroublegirl
-Options10:What is @rgtroublegirl
-Options10:What is @rgtroublegirl
-Options10:What is @rgtroublegirl
+Question10:If half of a two part transaction fails, this property of ACID failed
+Options10:What is consistency
+Options10:What is durability
+Options10:What is atomicity
+Options10:What is isolation
 Value10:600
-Answer10:0
+Answer10:2
 Question11:rgreenbe is the bestest person
 Options11:What is @rgtroublegirl
 Options11:What is @rgtroublegirl
@@ -103,13 +103,13 @@ Options14:What is @rgtroublegirl
 Options14:What is @rgtroublegirl
 Value14:600
 Answer14:0
-Question15:rgreenbe is the bestest person
-Options15:What is @rgtroublegirl
-Options15:What is @rgtroublegirl
-Options15:What is @rgtroublegirl
-Options15:What is @rgtroublegirl
+Question15:Concurrent transactions producing different results than serial transactions is a failure of this property of ACID
+Options15:What is durability
+Options15:What is consistency
+Options15:What is atomicity
+Options15:What is isolation
 Value15:800
-Answer15:0
+Answer15:3
 Question16:rgreenbe is the bestest person
 Options16:What is @rgtroublegirl
 Options16:What is @rgtroublegirl
