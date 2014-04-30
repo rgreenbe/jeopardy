@@ -61,11 +61,11 @@ Options8:What is good timekeeping
 Options8:What are wall decorations
 Value8:400
 Answer8:0
-Question9:rgreenbe is the bestest person
-Options9:What is @rgtroublegirl
-Options9:What is @rgtroublegirl
-Options9:What is @rgtroublegirl
-Options9:What is @rgtroublegirl
+Question9:This famous female engineer is credited with popularizing the term debugging
+Options9:Who is Grace Hopper
+Options9:Who is Sheryl Sandberg
+Options9:Who is Marissa Mayer
+Options9:Who is Ada Lovelace
 Value9:400
 Answer9:0
 Question10:If half of a two part transaction fails, this property of ACID failed
@@ -110,18 +110,18 @@ Options15:What is atomicity
 Options15:What is isolation
 Value15:800
 Answer15:3
-Question16:rgreenbe is the bestest person
-Options16:What is @rgtroublegirl
-Options16:What is @rgtroublegirl
-Options16:What is @rgtroublegirl
-Options16:What is @rgtroublegirl
+Question16:Egalatarian Paxos Require how many non-corrupt nodes 
+Options16:What is all nodes
+Options16:What is one node
+Options16:What is a clear majority
+Options16:What is a simple majority
 Value16:800
-Answer16:0
-Question17:rgreenbe is the bestest person
-Options17:What is @rgtroublegirl
-Options17:What is @rgtroublegirl
-Options17:What is @rgtroublegirl
-Options17:What is @rgtroublegirl
+Answer16:3
+Question17:RAID 5 uses this feature to improve upon RAID 1
+Options17:What is staggering
+Options17:What is striping
+Options17:What is replication
+Options17:What is mirroring
 Value17:800
 Answer17:0
 Question18:rgreenbe is the bestest person
