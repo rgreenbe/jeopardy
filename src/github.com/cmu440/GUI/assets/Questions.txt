@@ -75,35 +75,35 @@ Options10:What is atomicity
 Options10:What is isolation
 Value10:600
 Answer10:2
-Question11:rgreenbe is the bestest person
-Options11:What is @rgtroublegirl
-Options11:What is @rgtroublegirl
-Options11:What is @rgtroublegirl
-Options11:What is @rgtroublegirl
+Question11:Paxos that handles 2 node failes requires how many nodes
+Options11:What are 5 nodes
+Options11:What are 3 nodes
+Options11:What are 4 nodes
+Options11:What 2 nodes
 Value11:600
 Answer11:0
-Question12:rgreenbe is the bestest person
-Options12:What is @rgtroublegirl
-Options12:What is @rgtroublegirl
-Options12:What is @rgtroublegirl
-Options12:What is @rgtroublegirl
+Question12:6 drives in RAID 0 with sequential sequential read speed of 20MB/s achieve what speed
+Options12:What is 60MB/s
+Options12:What is 20MB/s
+Options12:What is 120MB/s
+Options12:What is 90MB/s
 Value12:600
-Answer12:0
-Question13:rgreenbe is the bestest person
-Options13:What is @rgtroublegirl
-Options13:What is @rgtroublegirl
-Options13:What is @rgtroublegirl
-Options13:What is @rgtroublegirl
+Answer12:2
+Question13:Lamport clocks order requests in this manner
+Options13:What is round robin
+Options13:What is queued
+Options13:What is random
+Options13:What is LIFO
 Value13:600
-Answer13:0
-Question14:rgreenbe is the bestest person
-Options14:What is @rgtroublegirl
-Options14:What is @rgtroublegirl
-Options14:What is @rgtroublegirl
-Options14:What is @rgtroublegirl
+Answer13:1
+Question14:What is the "best" GUI
+Options14:What is Swing
+Options14:What is TKInter
+Options14:What is Cobol WOW
+Options14:What is eXene
 Value14:600
 Answer14:0
-Question15:Concurrent transactions producing different results than serial transactions is a failure of this property of ACID
+Question15:Concurrent and serial transactions produce idential results or break this property of ACID
 Options15:What is durability
 Options15:What is consistency
 Options15:What is atomicity
@@ -124,11 +124,11 @@ Options17:What is replication
 Options17:What is mirroring
 Value17:800
 Answer17:0
-Question18:rgreenbe is the bestest person
-Options18:What is @rgtroublegirl
-Options18:What is @rgtroublegirl
-Options18:What is @rgtroublegirl
-Options18:What is @rgtroublegirl
+Question18:Vector clocks add this feature on top of Lamport clocks
+Options18:What is causality
+Options18:What is partial ordering
+Options18:What is total ordering
+Options18:What is cooking eggs
 Value18:800
 Answer18:0
 Question19:This is the grade this project should receive
