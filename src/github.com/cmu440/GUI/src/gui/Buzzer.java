@@ -15,7 +15,7 @@ public class Buzzer implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		try {
-			game.buzz();
+			game.buzz(game.playerID());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
