@@ -53,7 +53,6 @@ func main() {
 	if err != nil {
 		log.Fatalln("Failed to create Paxos node:", err)
 	}
-	log.Println("Started", *nodeID)
 	// Run the node forever.
 	select {}
 }

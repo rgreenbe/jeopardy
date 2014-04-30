@@ -1,36 +1,36 @@
-Question0:rgreenbe is the bestest person
-Options0:What is @rgtroublegirl
-Options0:What is @rgtroublegirl
-Options0:What is @rgtroublegirl
-Options0:What is @rgtroublegirl
+Question0:The A in ACID stands for this word
+Options0:What is accessibility
+Options0:What is atomicity
+Options0:What is ability
+Options0:What is algorithm
 Value0:200
-Answer0:0
-Question1:rgreenbe is the bestest person
-Options1:What is @rgtroublegirl
-Options1:What is @rgtroublegirl
-Options1:What is @rgtroublegirl
-Options1:What is @rgtroublegirl
+Answer0:1
+Question1:Paxos achieves this between nodes
+Options1:What is distribution of processing power
+Options1:What is distribution of data storage
+Options1:What is consensus
+Options1:What is progress in an async network 
 Value1:200
-Answer1:0
-Question2:rgreenbe is the bestest person
-Options2:What is @rgtroublegirl
-Options2:What is @rgtroublegirl
-Options2:What is @rgtroublegirl
-Options2:What is @rgtroublegirl
+Answer1:2
+Question2:The R is RAID stands for this word
+Options2:What is reliable
+Options2:What is recoverable
+Options2:What is reusable
+Options2:What is redundant
 Value2:200
-Answer2:0
-Question3:rgreenbe is the bestest person
-Options3:What is @rgtroublegirl
-Options3:What is @rgtroublegirl
-Options3:What is @rgtroublegirl
-Options3:What is @rgtroublegirl
+Answer2:3
+Question3:This person created these "totally" cool clocks, named after him
+Options3:Who is Leslie Lamport
+Options3:Who is Local Host
+Options3:Who is Eighty Eighty
+Options3:Who is alockwoo
 Value3:200
 Answer3:0
-Question4:rgreenbe is the bestest person
-Options4:What is @rgtroublegirl
-Options4:What is @rgtroublegirl
-Options4:What is @rgtroublegirl
-Options4:What is @rgtroublegirl
+Question4:You should follow this person on Twitter
+Options4:Who is @rgtroublegirl
+Options4:Who is @dga
+Options4:Who is @srini
+Options4:Who is @alockwoo
 Value4:200
 Answer4:0
 Question5:rgreenbe is the bestest person
@@ -131,10 +131,10 @@ Options18:What is @rgtroublegirl
 Options18:What is @rgtroublegirl
 Value18:800
 Answer18:0
-Question19:rgreenbe is the bestest person
-Options19:What is @rgtroublegirl
-Options19:What is @rgtrfgfgoublegirl
-Options19:What is @rgtroublegirl
-Options19:What is @rgtroublegirl
+Question19:This is the grade this project should receive
+Options19:What is an A
+Options19:What is a B
+Options19:What is a C
+Options19:What is a D
 Value19:800
 Answer19:0
