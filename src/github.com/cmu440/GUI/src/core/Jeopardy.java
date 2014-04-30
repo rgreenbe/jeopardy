@@ -58,7 +58,7 @@ public class Jeopardy {
         		+ "board:[[200,200,200,200,200],"
         		+ "[400,400,400,400,400],"
         		+ "[600,600,600,600,600],"
-        		+ "[800,800,800,800,800]],categories:[poop,hello,world,mgode,rgreenbe]"
+        		+ "[800,800,800,800,800]],categories:[ACID,Paxos,RAID,Clocks,Misc]"
         		+ "}";
 		gson=new Gson();
 		turn =0;

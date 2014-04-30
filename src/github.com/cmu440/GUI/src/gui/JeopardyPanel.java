@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -72,13 +73,14 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		JPanel side = new JPanel();
 		side.setOpaque(true);
 		side.setPreferredSize(new Dimension(200, LENGTH));
-		side.setLayout(new GridLayout(10, 1));
+		side.setLayout(new BoxLayout(side, BoxLayout.PAGE_AXIS));
+		//side.setLayout(new GridLayout(7, 1));
 		join = new JButton();
 		join.addActionListener(new JoinListener(j, join));
 		join.setFont(f);
 		join.setText("Join Game");
 		JPanel pad = new JPanel();
-		pad.setBorder(new EmptyBorder(5, 5, 5, 5));
+		//pad.setBorder(new EmptyBorder(5, 5, 5, 5));
 		pad.add(join);
 		side.add(pad);
 		JLabel players = new JLabel("Players", JLabel.CENTER);
@@ -285,33 +287,39 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 
 	@Override
 	public void startGame() {
-		sidePanel.setLayout(new GridLayout(5, 1));
 		System.out.println("adding players ");
 		for (int i = 0; i < j.players().size(); i++) {
 			BufferedImage image;
 			try {
 				image = ImageIO.read(new File("assets/gopher_player"
 						+ Integer.toString(i + 1) + ".png"));
-				image.getScaledInstance(image.getWidth(), image.getHeight(), 1);
+				//image.getScaledInstance(image.getWidth(), image.getHeight(), 1);
 				JLabel playerIcon = new JLabel(new ImageIcon(image));
 
-				playerIcon.setPreferredSize(new Dimension(80, 80));
-
+				//playerIcon.setPreferredSize(new Dimension(80, 80));
+				Font f = new Font("Helvetica", Font.PLAIN, 15);
 				JPanel pbox = new JPanel();
 				pbox.setOpaque(true);
 				pbox.setLayout(new GridLayout(4, 1));
 				pbox.add(new JLabel("Player: " + Integer.toString(i)));
 				pbox.add(playerIcon);
-				JLabel score = new JLabel("Score: 0");
+				JLabel score = new JLabel("Score: 0",JLabel.CENTER);
 				pbox.add(score);
 				playerScores.add(score);
-
+				JLabel playerLabel=new JLabel("",JLabel.CENTER);
+				playerLabel.setHorizontalTextPosition(JLabel.CENTER);
+				//playerLabel.setAlignmentX(CENTER_ALIGNMENT);
+				//playerLabel.setAlignmentY(CENTER_ALIGNMENT);
+				playerLabel.setFont(f);
 				if (i == j.playerID()) {
-					pbox.add(new JLabel("Your Player"));
+					playerLabel.setText("Your Player");
+
 				} else {
-					pbox.add(new JLabel("Opponent"));
+					playerLabel.setText("Opponent");
 				}
+				pbox.add(playerLabel);
 				sidePanel.add(pbox);
+				sidePanel.setBorder(BorderFactory.createLineBorder(Color.black, 3));
 				sidePanel.validate();
 				sidePanel.repaint();
 			} catch (IOException ex) {
