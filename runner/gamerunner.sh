@@ -33,6 +33,7 @@ CLIENT=$GOPATH/bin/crunner
 
 function startPaxosServers {
     N=${#PAXOS_ID[@]}
+    echo  "Master port:${PAXOS_PORT}"
     # Start master paxos server.
     ${PAXOS_SERVER} -N=${N} -id=${PAXOS_ID[0]} -port=${PAXOS_PORT} -testing=false &> output.txt &
     PAXOS_SERVER_PID[0]=$!
