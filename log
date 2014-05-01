@@ -1,0 +1,9 @@
+10:13:03.548584 paxostest.go:206: Running testPaxosBasic1:
+10:13:03.902612 paxostest.go:62: Passed!
+10:13:04.002909 paxostest.go:206: Running testPaxosBasic2:
+10:13:04.045873 paxostest.go:62: Passed!
+10:13:04.146121 paxostest.go:206: Running testPaxosBasic3:
+10:13:05.278588 paxostest.go:62: Passed!
+10:13:05.378825 paxostest.go:206: Running testPaxosDuelingLeaders:
+10:13:05.798756 paxostest.go:131: Passed!
+10:13:05.898965 paxostest.go:211: Passed (4/4) tests

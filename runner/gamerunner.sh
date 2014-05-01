@@ -67,6 +67,7 @@ function startGame {
     PAXOS_ID=('0' '1' '2')
     TIMEOUT=390
     startPaxosServers
+    kill -9 ${PAXOS_SERVER_PID[2]}
     startClient
     sleep 180
     stopPaxosServers

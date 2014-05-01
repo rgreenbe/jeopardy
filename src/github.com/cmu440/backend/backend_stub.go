@@ -13,6 +13,9 @@ func NewStub() Backend {
 	return &stub{}
 }
 
+/* The backend stub simply gets the messages that are sent through Paxos
+* and echos them back to the provided host:port
+*/
 func (s *stub) RecvCommit(commitMessage []byte, master bool) error {
 	commit := string(commitMessage)
 	items := strings.Split(commit, ",")

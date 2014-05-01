@@ -1,0 +1,140 @@
+Question0:The A in ACID stands for this word
+Options0:What is accessibility
+Options0:What is atomicity
+Options0:What is ability
+Options0:What is algorithm
+Value0:200
+Answer0:1
+Question1:Paxos achieves this between nodes
+Options1:What is distribution of processing power
+Options1:What is distribution of data storage
+Options1:What is consensus
+Options1:What is progress in an async network 
+Value1:200
+Answer1:2
+Question2:The R is RAID stands for this word
+Options2:What is reliable
+Options2:What is recoverable
+Options2:What is reusable
+Options2:What is redundant
+Value2:200
+Answer2:3
+Question3:This person created these "totally" cool clocks, named after him
+Options3:Who is Leslie Lamport
+Options3:Who is Local Host
+Options3:Who is Eighty Eighty
+Options3:Who is alockwoo
+Value3:200
+Answer3:0
+Question4:You should follow this person on Twitter
+Options4:Who is @rgtroublegirl
+Options4:Who is @dga
+Options4:Who is @srini
+Options4:Who is @alockwoo
+Value4:200
+Answer4:0
+Question5:This person defined the properties that were later coined ACID
+Options5:Who is David Hasselhoff
+Options5:Who is Jim Gray
+Options5:Who is Andreas Reuter
+Options5:Who is Theo Härder
+Value5:400
+Answer5:1
+Question6:This person first developed the Paxos algorithm
+Options6:Who is Bill Gates
+Options6:Who is Leslie Lamport
+Options6:Who is Jesus Christ
+Options6:Who is Grace Hopper
+Value6:400
+Answer6:1
+Question7:RAID 0's main focus is this
+Options7:What is redundancy
+Options7:What is reliability
+Options7:What is speed
+Options7:What is durability
+Value7:400
+Answer7:2
+Question8:Lamport Clocks can be used for which of the following
+Options8:What is total ordering
+Options8:What is data redundancy
+Options8:What is good timekeeping
+Options8:What are wall decorations
+Value8:400
+Answer8:0
+Question9:This famous female engineer is credited with popularizing the term debugging
+Options9:Who is Grace Hopper
+Options9:Who is Sheryl Sandberg
+Options9:Who is Marissa Mayer
+Options9:Who is Ada Lovelace
+Value9:400
+Answer9:0
+Question10:If half of a two part transaction fails, this property of ACID failed
+Options10:What is consistency
+Options10:What is durability
+Options10:What is atomicity
+Options10:What is isolation
+Value10:600
+Answer10:2
+Question11:Paxos that handles 2 node failes requires how many nodes
+Options11:What are 5 nodes
+Options11:What are 3 nodes
+Options11:What are 4 nodes
+Options11:What 2 nodes
+Value11:600
+Answer11:0
+Question12:6 drives in RAID 0 with sequential sequential read speed of 20MB/s achieve what speed
+Options12:What is 60MB/s
+Options12:What is 20MB/s
+Options12:What is 120MB/s
+Options12:What is 90MB/s
+Value12:600
+Answer12:2
+Question13:Lamport clocks order requests in this manner
+Options13:What is round robin
+Options13:What is queued
+Options13:What is random
+Options13:What is LIFO
+Value13:600
+Answer13:1
+Question14:What is the "best" GUI
+Options14:What is Swing
+Options14:What is TKInter
+Options14:What is Cobol WOW
+Options14:What is eXene
+Value14:600
+Answer14:0
+Question15:Concurrent and serial transactions produce idential results or break this property of ACID
+Options15:What is durability
+Options15:What is consistency
+Options15:What is atomicity
+Options15:What is isolation
+Value15:800
+Answer15:3
+Question16:Egalatarian Paxos Require how many non-corrupt nodes 
+Options16:What is all nodes
+Options16:What is one node
+Options16:What is a clear majority
+Options16:What is a simple majority
+Value16:800
+Answer16:3
+Question17:RAID 5 uses this feature to improve upon RAID 1
+Options17:What is staggering
+Options17:What is striping
+Options17:What is replication
+Options17:What is mirroring
+Value17:800
+Answer17:0
+Question18:Vector clocks add this feature on top of Lamport clocks
+Options18:What is causality
+Options18:What is partial ordering
+Options18:What is total ordering
+Options18:What is cooking eggs
+Value18:800
+Answer18:0
+Question19:This is the grade this project should receive
+Options19:What is an A
+Options19:What is a B
+Options19:What is a C
+Options19:What is a D
+Value19:800
+Answer19:0

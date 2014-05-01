@@ -28,6 +28,10 @@ func NewJeopardyServer() (Backend, error) {
 	return &jeopardy{0, make(map[int]game), nil}, nil
 }
 
+/*
+* Reads in proposals from the Jeopardy! client and uses type assertions to convert
+* the JSON object into a map. From there, we handle the value based on the provided key
+ */
 func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
 	var f interface{}
 	err := json.Unmarshal(commitMessage, &f)
@@ -61,6 +65,9 @@ func (j *jeopardy) RecvCommit(commitMessage []byte, master bool) error {
 	return nil
 }
 
+/*
+* We let the front-end handle the logic of adding and subtracting from scores
+ */
 func (j *jeopardy) handleQA(message map[string]interface{}, commitMessage []byte) {
 	gameFloat, ok := message["gameID"].(float64)
 	if !ok {
@@ -74,6 +81,10 @@ func (j *jeopardy) handleQA(message map[string]interface{}, commitMessage []byte
 	j.echoAll(game.players, commitMessage)
 }
 
+/*
+* The backend must do the work of determining the first buss for each turn in the given game.
+* All buzzes for a round are ignored after the first game.
+ */
 func (j *jeopardy) handleBuzz(message map[string]interface{}, commitMessage []byte, master bool) {
 	gameFloat, ok := message["gameID"].(float64)
 	if !ok {
@@ -98,6 +109,11 @@ func (j *jeopardy) handleBuzz(message map[string]interface{}, commitMessage []by
 	}
 }
 
+/*
+* When a client asks to join a game of Jeopardy!, the game determines if there are
+* two other waiting players and places them in a game if this is the case. Otherwise,
+* they are queued and wait until there are three players.
+ */
 func (j *jeopardy) handleJoin(message map[string]interface{}, master bool) {
 	hostport := message["hostport"].(string)
 	if j.waiting == nil {
@@ -115,6 +131,10 @@ func (j *jeopardy) handleJoin(message map[string]interface{}, master bool) {
 	}
 }
 
+/*
+* Once three players are placed into a game, they are sent a JSON object
+* that includes both their gameID and their playerID
+ */
 func (j *jeopardy) sendGame(newGame game) {
 	reply := make(map[string]interface{})
 	reply["gameID"] = newGame.gameNum
@@ -142,6 +162,9 @@ func (j *jeopardy) sendGame(newGame game) {
 	}
 }
 
+/*
+* The provided message is sent to each player in the provided array of players
+ */
 func (j *jeopardy) echoAll(players []player, message []byte) {
 	for _, player := range players {
 		if player.connection == nil {

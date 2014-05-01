@@ -48,6 +48,9 @@ type paxos struct {
 	debug           paxosrpc.Debug
 }
 
+/*
+* Start a new paxos server, register to receive rpc calls, connect to the master, and get the list of other nodes
+ */
 func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, masterID uint64, learner backend.Backend, debug paxosrpc.Debug) (Paxos, error) {
 	var listener net.Listener
 	var err error
@@ -96,6 +99,8 @@ func NewPaxos(masterHostPort string, numNodes int, hostPort string, nodeID, mast
 	go http.Serve(listener, nil)
 	return p, nil
 }
+
+//See API
 func (p *paxos) GetServers(args *paxosrpc.GetServerArgs, reply *paxosrpc.GetServerReply) error {
 	seen := false
 	if (*args).Node != nil {
@@ -117,6 +122,7 @@ func (p *paxos) GetServers(args *paxosrpc.GetServerArgs, reply *paxosrpc.GetServ
 	return nil
 }
 
+//See API
 func (p *paxos) ReplaceNode(args *paxosrpc.ReplaceNodeArgs, reply *paxosrpc.ReplaceNodeReply) error {
 	oldNode := args.OldNode
 	newNode := args.NewNode
@@ -138,6 +144,7 @@ func (p *paxos) ReplaceNode(args *paxosrpc.ReplaceNodeArgs, reply *paxosrpc.Repl
 	return errors.New("Old node does not exist")
 }
 
+//See API
 func (p *paxos) MasterServer(args *paxosrpc.GetMasterArgs, reply *paxosrpc.GetMasterReply) error {
 	var min uint64 = math.MaxUint32
 	var minNode paxosrpc.Node
@@ -151,6 +158,7 @@ func (p *paxos) MasterServer(args *paxosrpc.GetMasterArgs, reply *paxosrpc.GetMa
 	return nil
 }
 
+//See API
 func (p *paxos) Quiesce(args *paxosrpc.QuiesceArgs, reply *paxosrpc.QuiesceReply) error {
 	p.quiesceLock.Lock()
 	p.quiesce = true
@@ -213,6 +221,7 @@ L:
 	return nil
 }
 
+//See API
 func (p *paxos) Resume(args *paxosrpc.ResumeArgs, reply *paxosrpc.ResumeReply) error {
 	p.quiesceLock.Lock()
 	defer p.quiesceLock.Unlock()

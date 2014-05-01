@@ -7,6 +7,10 @@ import (
 	"net/rpc"
 )
 
+/* This is an extremely lightweight client that reads from a socket and
+* makes proposals to the Paxos ring. This implementation will support
+* an arbitrary front-end and just serves as an entry point to the protocol
+ */
 type jeopardyClient struct {
 	master *rpc.Client
 }

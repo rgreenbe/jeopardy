@@ -94,7 +94,7 @@ func (t *tester) acceptConnections() {
 
 /*This is 51 messages because one of the tests has a node continually drop
 *odd numbered command slots..thus in order for it to catchup to the last command, we
-*have to submit an odd number of commands
+*have to submit an odd number of commands (and the other one drops the first 50 commits)
  */
 func testPaxosBasic1() {
 	t.sendAndListen(51)

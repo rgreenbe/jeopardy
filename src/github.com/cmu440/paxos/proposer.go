@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+//See API
 func (p *paxos) Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply) error {
 	p.quiesceLock.Lock()
 	if p.quiesce == true {
@@ -18,6 +19,7 @@ func (p *paxos) Propose(args *paxosrpc.ProposeArgs, reply *paxosrpc.ProposeReply
 	(*(reply)).Status = paxosrpc.OK
 	proposal := (*args).Proposal
 	p.listLock.Lock()
+	//If its not a no-op, add it to the list
 	if len(proposal) > 0 {
 		p.proposalList.PushBack(proposal)
 	}
@@ -35,6 +37,7 @@ func (p *paxos) handlePrepare() {
 	}
 }
 
+//Get a sequence number that is the highest seen, convenience helper
 func (p *paxos) getN() uint64 {
 	if p.highestSequence != nil {
 		return p.highestSequence.N + 1
@@ -43,6 +46,10 @@ func (p *paxos) getN() uint64 {
 	}
 }
 
+/*
+*This function will send a prepare to each node through an rpc call, and when
+* a simple majority either accepts or rejects it will act accordingly
+ */
 func (p *paxos) sendPrepare() {
 	p.dataLock.Lock()
 	sequence := &paxosrpc.Sequence{p.contestedRound, p.getN(), p.nodeID}
@@ -54,7 +61,7 @@ func (p *paxos) sendPrepare() {
 	for _, connection := range p.connections {
 		go p.rpcPrepare(connection, args, replyChan)
 	}
-	go p.rpcPrepare(nil, args, replyChan)
+	go p.rpcPrepare(nil, args, replyChan) //Call itself
 	var oldestPrepare *paxosrpc.ValueSequence
 	ok := 0
 	cancel := 0 + ((p.numNodes - 1) - len(p.connections)) //If we have a dead node with a dead connection, we cound it out
@@ -77,7 +84,8 @@ func (p *paxos) sendPrepare() {
 					front := p.proposalList.Front()
 					if front != nil {
 						value = front.Value.([]byte)
-					} else {
+					} else { //This should never happen
+						p.listLock.Unlock()
 						return
 					}
 					p.listLock.Unlock()
@@ -91,8 +99,8 @@ func (p *paxos) sendPrepare() {
 		} else {
 			cancel++
 			if (p.numNodes / 2) < cancel {
-				time.Sleep(time.Millisecond * 100)
-				p.startPrepare <- struct{}{} //So sorry..try again
+				time.Sleep(time.Millisecond * 100) //Wait to avoid dueling for command slot
+				p.startPrepare <- struct{}{}
 				return
 			}
 		}
@@ -121,8 +129,8 @@ func (p *paxos) sendAccept(accept *paxosrpc.ValueSequence, ownValue bool) {
 		} else {
 			cancel++
 			if (p.numNodes / 2) < cancel {
-				time.Sleep(time.Millisecond * 100)
-				p.startPrepare <- struct{}{} //So sorry..try again
+				time.Sleep(time.Millisecond * 100) //Wait to avoid dueling for spot
+				p.startPrepare <- struct{}{}
 				return
 			}
 		}
@@ -135,14 +143,14 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence, ownValue bool) {
 		go p.rpcCommit(connection, args)
 	}
 	p.listLock.Lock()
-	if ownValue {
+	if ownValue { //If this is not from a no-op, remove the commit from our proposals
 		p.proposalList.Remove(p.proposalList.Front())
 	} else if p.proposalList.Len() > 0 {
 		p.startPrepare <- struct{}{}
 	}
 	p.listLock.Unlock()
 	p.dataLock.Lock()
-	if p.contestedRound == (*commit).Sequence.Round {
+	if p.contestedRound == (*commit).Sequence.Round { //Make the commit, if we can
 		p.learner.RecvCommit((*args).Committed.Value, ownValue)
 		p.commits[(*commit).Sequence.Round] = &Round{(*commit).Sequence, commit, true}
 		p.contestedRound++
@@ -151,7 +159,7 @@ func (p *paxos) sendCommit(commit *paxosrpc.ValueSequence, ownValue bool) {
 	p.dataLock.Unlock()
 }
 
-func (p *paxos) catchup() {
+func (p *paxos) catchup() { //Checks for command slots that were already filled in and commits, if possible
 	for {
 		round, ok := p.commits[p.contestedRound]
 		if ok && round.committed {
@@ -188,6 +196,9 @@ func (p *paxos) rpcPrepare(server *rpc.Client, args *paxosrpc.PrepareArgs, reply
 	replyChan <- *reply
 }
 
+/*Valid will return true, if the prepare (or accept) sequence value
+*Is greater than or equal to the highest one seen so far
+ */
 func (p *paxos) valid(highest, prepare *paxosrpc.Sequence) bool {
 	if highest == nil {
 		return true
@@ -199,6 +210,10 @@ func (p *paxos) valid(highest, prepare *paxosrpc.Sequence) bool {
 	return false
 }
 
+/*Compares the highest sequence with the prepare sequence.
+*In the case of a tie, the lowest nodeID will be considered the higher sequence
+* in accordance with declaring the lowest nodeID the leader
+ */
 func (p *paxos) compare(highest, prepare *paxosrpc.Sequence) int {
 	if highest.N < prepare.N {
 		return LESS
@@ -213,6 +228,7 @@ func (p *paxos) compare(highest, prepare *paxosrpc.Sequence) int {
 	return GREATER
 }
 
+//Makes a connection with each node
 func (p *paxos) connectToNodes() {
 	p.connections = make([]*rpc.Client, 0, p.numNodes-1)
 	for _, node := range p.nodes {
@@ -228,6 +244,7 @@ func (p *paxos) connectToNodes() {
 	p.madeConnections = true
 }
 
+//Function to simulate different kinds of network failure to facilitate testing
 func (p *paxos) simulateNetworkError(round uint64) bool {
 	if p.debug == paxosrpc.NONE {
 		return false

@@ -4,6 +4,11 @@ import (
 	"github.com/cmu440/rpc/paxosrpc"
 )
 
+/*
+* This is a strightforward implementation. If, for this round, the node had not seen a higher
+* sequence number, then they will provide the proposer with any previously accepted values
+* and update the highest sequence if need be.
+ */
 func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareReply) error {
 	if p.simulateNetworkError((*args).Sequence.Round) {
 		return nil
@@ -30,6 +35,10 @@ func (p *paxos) RecvPrepare(args *paxosrpc.PrepareArgs, reply *paxosrpc.PrepareR
 	return nil
 }
 
+/*
+* Fairly strightforward implementation. If, for the round, the node has not
+* seen a higher sequence, they will accept the value.
+ */
 func (p *paxos) RecvAccept(args *paxosrpc.AcceptArgs, reply *paxosrpc.AcceptReply) error {
 	if p.simulateNetworkError((*args).Accept.Sequence.Round) {
 		return nil
