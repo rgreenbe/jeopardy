@@ -19,7 +19,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 import core.GameChangeListener;
 import core.GameInfo;
@@ -27,6 +26,8 @@ import core.Jeopardy;
 import core.Question;
 
 public class JeopardyPanel extends JPanel implements GameChangeListener {
+
+	private static final long serialVersionUID = 2199944271427256792L;
 	private final Jeopardy j;
 	private final int WIDTH, LENGTH, BWIDTH, BLENGTH, MAXGUESSES;
 	private JButton[][] questions;
@@ -126,7 +127,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 				questions[row][col] = q;
 				index = row * cols + col;
 				q.setText(Integer.toString(qFromBoard.get(index).value()));
-				q.addActionListener(new ChooseQuestion(row, col, q, j));
+				q.addActionListener(new ChooseQuestion(row, col, j));
 
 			}
 		}
