@@ -25,6 +25,7 @@ public class Jeopardy {
 	private ArrayList<Question> questions;
 	private GameChangeListener listener;
 	private Question currentQ;
+	/**This keeps track of questions already selected*/
 	private Boolean[][] selectedQuestions;
 	private final int rows,cols;
 	public Jeopardy(String hostport, int random) throws FileNotFoundException{
@@ -74,32 +75,60 @@ public class Jeopardy {
 		QuestionArgs qa=new QuestionArgs(playerID,gameID,row,col);
 		out.write(makeJson("Question",gson.toJson(qa)).getBytes());
 	}
+	/*
+	 * buzz will send to socket buzz json
+	 */
 	public void buzz(int player) throws IOException{
-
 		BuzzArgs buzz=new BuzzArgs(gameID,player,turn);
 		out.write(makeJson("Buzz",gson.toJson(buzz)).getBytes());
 	}
-
+	/**
+	 * joinGame will be called when a player clicks the join game button
+	 * @throws IOException
+	 */
 	public void joinGame() throws IOException{
 		JoinArgs join =new JoinArgs(hostport);
 		out.write(makeJson("Join",gson.toJson(join)).getBytes());
 
 	}
+	
+	/**
+	 * The game listener is here to check when changes happen to update
+	 * GUI
+	 * @param l
+	 */
 	public void addListener(GameChangeListener l){
 		this.listener=l;
 	}
+	
+	/**
+	 * joined is called when the backend sends a json
+	 * with playerID and game ID
+	 */
 	public synchronized void joined(String json){
 		JoinRep newGame=gson.fromJson(json, JoinRep.class);
 		this.gameID=newGame.GameID();
 		this.playerID=newGame.PlayerID();
 		listener.startGame();
 	}
+	
+	/**
+	 * buzzed is called when backend echoes the buzz json
+	 * The user who buzzes will get control over the game
+	 */
 	public synchronized void buzzed(String json){
 		turn++;
 		BuzzArgs b=gson.fromJson(json, BuzzArgs.class);
 		currentPlayer=b.playerID();
 		listener.buzzedIn(b.playerID());
 	}
+	
+	/**
+	 * answered will give a json from backend through the network
+	 * listener when a user has answered 
+	 * @param json
+	 * @throws InterruptedException
+	 */
 	public synchronized void answered(String json) throws InterruptedException{
 		AnswerArgs a=gson.fromJson(json, AnswerArgs.class);
 		int score=players.get(a.playerID());
@@ -115,6 +144,12 @@ public class Jeopardy {
 	private int qIndex(int row,int col){
 		return (cols*row+col);
 	}
+	
+	/**
+	 * selectedQuestion will give the row and col
+	 * for the question from the backend and the user who selected it
+	 * @param json
+	 */
 	public synchronized void selectedQuestion(String json){
 		QuestionArgs q=gson.fromJson(json, QuestionArgs.class);
 		int r=q.row();

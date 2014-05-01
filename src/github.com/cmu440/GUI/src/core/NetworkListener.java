@@ -5,6 +5,13 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Network listener listens in on the network and waits for certain commands JoinRep
+ * Buzz Answer and Question which are all part of json. Then it can parse the object 
+ * properly and get the right fields
+ * @author rebeccagreenberg
+ *
+ */
 public class NetworkListener implements Runnable {
 	private ServerSocket s;
 	private InputStream in;
