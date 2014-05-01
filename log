@@ -1,14 +1,4 @@
-10:13:03.548584 paxostest.go:206: Running testPaxosBasic1:
-10:13:03.902612 paxostest.go:62: Passed!
-10:13:04.002909 paxostest.go:206: Running testPaxosBasic2:
-10:13:04.045873 paxostest.go:62: Passed!
-10:13:04.146121 paxostest.go:206: Running testPaxosBasic3:
-10:13:05.278588 paxostest.go:62: Passed!
-10:13:05.378825 paxostest.go:206: Running testPaxosDuelingLeaders:
-10:13:05.798756 paxostest.go:131: Passed!
-10:13:05.898965 paxostest.go:211: Passed (4/4) tests
-01:51:19.792306 crunner.go:27: Started Jeopardy! client
-01:51:26.837175 proposer.go:240: dial tcp 127.0.0.1:18305: connection refused
-01:51:47.668772 client_impl.go:33: EOF
-01:51:48.573550 client_impl.go:33: EOF
-01:51:49.260448 client_impl.go:33: EOF
+02:31:09.269506 crunner.go:27: Started Jeopardy! client
+02:31:23.263686 client_impl.go:33: EOF
+02:31:26.287157 client_impl.go:33: EOF
+02:31:29.411324 client_impl.go:33: EOF
