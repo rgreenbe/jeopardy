@@ -7,15 +7,18 @@ import java.util.Scanner;
 
 public class Questions {
 	private ArrayList<Question> q;
+	private Scanner s;
+	/*
+	 * Questions gathers all questions from the .txt file and turns them into 
+	 * question objects that have value options, answers
+	 */
 	public Questions() throws FileNotFoundException{
 		q=new ArrayList<Question>();
 		String file=("assets/Questions.txt");
-		Scanner s;
 		String question;
 		int i =0;
 		s = new Scanner (new File(file));
 		while(s.hasNextLine()){
-
 			question=s.nextLine();
 			if (question.startsWith("Question"+Integer.toString(i)))
 			{
@@ -35,8 +38,6 @@ public class Questions {
 			}
 
 		}
-		System.out.println(q.size());
-	
 	}
 	public  ArrayList<Question> questions(){
 		return q;

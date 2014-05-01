@@ -22,7 +22,6 @@ public class Jeopardy {
 	private String hostport;
 	private Socket s;
 	private OutputStream out; 
-	private int lastAnswered;
 	private ArrayList<Question> questions;
 	private GameChangeListener listener;
 	private Question currentQ;
@@ -73,19 +72,16 @@ public class Jeopardy {
 	}
 	public void chooseQuestion(int row, int col) throws IOException {
 		QuestionArgs qa=new QuestionArgs(playerID,gameID,row,col);
-		System.out.println("Choosing Question: "+Integer.toString(qIndex(row,col)));
 		out.write(makeJson("Question",gson.toJson(qa)).getBytes());
 	}
 	public void buzz(int player) throws IOException{
 
 		BuzzArgs buzz=new BuzzArgs(gameID,player,turn);
-		System.out.println("BUZZING with player : "+Integer.toString(player)+makeJson("Buzz",gson.toJson(buzz)));
 		out.write(makeJson("Buzz",gson.toJson(buzz)).getBytes());
 	}
 
 	public void joinGame() throws IOException{
 		JoinArgs join =new JoinArgs(hostport);
-		System.out.println("joining game");
 		out.write(makeJson("Join",gson.toJson(join)).getBytes());
 
 	}
@@ -93,7 +89,6 @@ public class Jeopardy {
 		this.listener=l;
 	}
 	public synchronized void joined(String json){
-		System.out.println(json);
 		JoinRep newGame=gson.fromJson(json, JoinRep.class);
 		this.gameID=newGame.GameID();
 		this.playerID=newGame.PlayerID();
@@ -101,15 +96,12 @@ public class Jeopardy {
 	}
 	public synchronized void buzzed(String json){
 		turn++;
-		System.out.println("Buzzed "+json);
 		BuzzArgs b=gson.fromJson(json, BuzzArgs.class);
-		System.out.println(json);
 		currentPlayer=b.playerID();
 		listener.buzzedIn(b.playerID());
 	}
 	public synchronized void answered(String json) throws InterruptedException{
 		AnswerArgs a=gson.fromJson(json, AnswerArgs.class);
-		System.out.println("Question value: "+Integer.toString(a.scoreChange()));
 		int score=players.get(a.playerID());
 		if (a.scoreChange()>0){
 			currentPlayer=a.playerID();
@@ -124,14 +116,11 @@ public class Jeopardy {
 		return (cols*row+col);
 	}
 	public synchronized void selectedQuestion(String json){
-		System.out.println(json+ "SIZE: "+json.length());
 		QuestionArgs q=gson.fromJson(json, QuestionArgs.class);
-		System.out.println("row: "+Integer.toString(q.row())+"col: ");
 		int r=q.row();
 		int c=q.col();
 		selectedQuestions[r][c]=true;
 		currentQ=questions.get(qIndex(r,c));
-		lastAnswered=q.playerID();
 		listener.selectQuestion(currentQ, r, c);
 		
 	}

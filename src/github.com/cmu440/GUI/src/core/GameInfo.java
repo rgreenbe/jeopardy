@@ -8,7 +8,6 @@ public class GameInfo {
 	private List<Integer> players;
 	private List<List<Integer>> board;
 	private List<String> categories;
-	private Boolean canControl;
 	public GameInfo(){}
 	public int playerID(){
 		return playerID;

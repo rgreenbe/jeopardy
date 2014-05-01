@@ -16,4 +16,7 @@ public class BuzzArgs {
 	public int gameID(){
 		return gameID;
 	}
+	public int turn(){
+		return turn;
+	}
 }

@@ -74,13 +74,11 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		side.setOpaque(true);
 		side.setPreferredSize(new Dimension(200, LENGTH));
 		side.setLayout(new BoxLayout(side, BoxLayout.PAGE_AXIS));
-		//side.setLayout(new GridLayout(7, 1));
 		join = new JButton();
 		join.addActionListener(new JoinListener(j, join));
 		join.setFont(f);
 		join.setText("Join Game");
 		JPanel pad = new JPanel();
-		//pad.setBorder(new EmptyBorder(5, 5, 5, 5));
 		pad.add(join);
 		side.add(pad);
 		JLabel players = new JLabel("Players", JLabel.CENTER);
@@ -93,8 +91,6 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		;
 		gridPanel.setOpaque(true);
 		setPreferredSize(new Dimension(WIDTH, LENGTH));
-		List<List<Integer>> board = gameInfo.board();
-		int padding = 5;
 		gridPanel.setMaximumSize(new Dimension(BWIDTH, BLENGTH));
 		gridPanel.setBorder(BorderFactory.createLineBorder(Color.black, 3));
 		gridPanel.setLayout(new GridLayout(rows + 1, cols));
@@ -103,7 +99,6 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		Font f = new Font("Helvetica", Font.PLAIN, 25);
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
-				int val = board.get(row).get(col);
 				JPanel pad = new JPanel();
 				pad.setBorder(BorderFactory.createLineBorder(Color.black, 3));
 				pad.setBackground(jeopardyBlue);
@@ -114,7 +109,6 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 				pad.add(q);
 				q.setPreferredSize(new Dimension(100, 100));
 				gridPanel.add(pad);
-				//q.setText(Integer.toString(val));
 				q.setFont(f);
 
 			}
@@ -123,7 +117,6 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	}
 
 	private void initBoardQuestions(int rows, int cols) {
-		List<List<Integer>> board = gameInfo.board();
 		ArrayList<Question> qFromBoard = j.questions();
 		int index;
 		questions = new JButton[rows][cols];
@@ -131,7 +124,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 			for (int col = 0; col < cols; col++) {
 				JButton q = new JButton();
 				questions[row][col] = q;
-				index=row*cols+col;
+				index = row * cols + col;
 				q.setText(Integer.toString(qFromBoard.get(index).value()));
 				q.addActionListener(new ChooseQuestion(row, col, q, j));
 
@@ -192,7 +185,6 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 
 	@Override
 	public void selectQuestion(Question q, int row, int col) {
-		System.out.println("Selecting question: " + q.question());
 		questions[row][col].setEnabled(false);
 		gridPanel.removeAll();
 		gridPanel.add(new JLabel("Click Buzz when you know the answer"));
@@ -251,7 +243,6 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	@Override
 	public void answeredQuestion(int playerID, int score, int choice)
 			throws InterruptedException {
-		System.out.println("Score for player :"+playerID+" is "+score);
 		options[choice].setOpaque(true);
 		options[choice].setEnabled(false);
 
@@ -260,7 +251,6 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 
 		}
 		if (j.currentQuestion().answer() == choice) {
-			System.out.println("RIGHT");
 			result.setText("RIGHT ANSWER");
 			options[choice].setBackground(Color.GREEN);
 			resetGrid();
@@ -287,29 +277,23 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 
 	@Override
 	public void startGame() {
-		System.out.println("adding players ");
 		for (int i = 0; i < j.players().size(); i++) {
 			BufferedImage image;
 			try {
 				image = ImageIO.read(new File("assets/gopher_player"
 						+ Integer.toString(i + 1) + ".png"));
-				//image.getScaledInstance(image.getWidth(), image.getHeight(), 1);
 				JLabel playerIcon = new JLabel(new ImageIcon(image));
-
-				//playerIcon.setPreferredSize(new Dimension(80, 80));
 				Font f = new Font("Helvetica", Font.PLAIN, 15);
 				JPanel pbox = new JPanel();
 				pbox.setOpaque(true);
 				pbox.setLayout(new GridLayout(4, 1));
 				pbox.add(new JLabel("Player: " + Integer.toString(i)));
 				pbox.add(playerIcon);
-				JLabel score = new JLabel("Score: 0",JLabel.CENTER);
+				JLabel score = new JLabel("Score: 0", JLabel.CENTER);
 				pbox.add(score);
 				playerScores.add(score);
-				JLabel playerLabel=new JLabel("",JLabel.CENTER);
+				JLabel playerLabel = new JLabel("", JLabel.CENTER);
 				playerLabel.setHorizontalTextPosition(JLabel.CENTER);
-				//playerLabel.setAlignmentX(CENTER_ALIGNMENT);
-				//playerLabel.setAlignmentY(CENTER_ALIGNMENT);
 				playerLabel.setFont(f);
 				if (i == j.playerID()) {
 					playerLabel.setText("Your Player");
@@ -319,7 +303,8 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 				}
 				pbox.add(playerLabel);
 				sidePanel.add(pbox);
-				sidePanel.setBorder(BorderFactory.createLineBorder(Color.black, 3));
+				sidePanel.setBorder(BorderFactory.createLineBorder(Color.black,
+						3));
 				sidePanel.validate();
 				sidePanel.repaint();
 			} catch (IOException ex) {
@@ -331,13 +316,10 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 	}
 
 	private void enableQuestions() {
-		System.out.println("current player is " + j.currentPlayer()
-				+ "and player ID " + j.playerID());
 		Boolean[][] alreadyAnswered = j.SelectedQuestions();
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
 				if (j.playerID() == j.currentPlayer()) {
-					System.out.println("Please enable");
 					if (alreadyAnswered[row][col]) {
 						questions[row][col].setEnabled(false);
 					} else {

@@ -2,10 +2,8 @@ package core;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class NetworkListener implements Runnable {
 	private ServerSocket s;
@@ -14,7 +12,6 @@ public class NetworkListener implements Runnable {
 	private final String join, buzz, answer, question;
 
 	public NetworkListener(ServerSocket readSocket, Jeopardy j) {
-		System.out.println("Starting network listener");
 		this.s = readSocket;
 		this.j = j;
 		this.join = "{\"JoinRep\":";
@@ -44,11 +41,9 @@ public class NetworkListener implements Runnable {
 				try {
 					in.read(buf);
 					String msg = new String(buf, "UTF-8");
-					System.out.println(msg);
 					if (msg.startsWith(join)) {
 						j.joined(jsonString(join, msg));
 					} else if (msg.startsWith(buzz)) {
-						System.out.println("Received buzz from network");
 						j.buzzed(jsonString(buzz, msg));
 					} else if (msg.startsWith(answer)) {
 						j.answered(jsonString(answer, msg));

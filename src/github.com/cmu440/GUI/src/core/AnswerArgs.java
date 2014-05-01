@@ -21,4 +21,7 @@ public class AnswerArgs {
 	public int choice(){
 		return choice;
 	}
+	public int gameID(){
+		return gameID;
+	}
 }

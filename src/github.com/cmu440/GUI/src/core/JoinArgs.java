@@ -5,4 +5,7 @@ public class JoinArgs {
 	public JoinArgs(String hostport){
 		this.hostport=hostport;
 	}
+	public String hostport(){
+		return hostport;
+	}
 }
