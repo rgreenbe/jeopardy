@@ -176,7 +176,7 @@ public class JeopardyPanel extends JPanel implements GameChangeListener {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		Font f = new Font("Helvetica", Font.BOLD, 25);
-		JLabel header = new JLabel("Jeopardy! 15440 Review", JLabel.CENTER);
+		JLabel header = new JLabel("Jeopardy! Review", JLabel.CENTER);
 		header.setFont(f);
 		header.setForeground(Color.white);
 		panel.add(header, BorderLayout.NORTH);

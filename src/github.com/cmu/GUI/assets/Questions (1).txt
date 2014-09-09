@@ -28,8 +28,8 @@ Value3:200
 Answer3:0
 Question4:You should follow this person on Twitter
 Options4:Who is @rgtroublegirl
-Options4:Who is @dga
-Options4:Who is @srini
+Options4:Who is @me
+Options4:Who is @notYou
 Options4:Who is @alockwoo
 Value4:200
 Answer4:0
@@ -43,7 +43,7 @@ Answer5:1
 Question6:This person first developed the Paxos algorithm
 Options6:Who is Bill Gates
 Options6:Who is Leslie Lamport
-Options6:Who is Jesus Christ
+Options6:Who is Hello
 Options6:Who is Grace Hopper
 Value6:400
 Answer6:1
